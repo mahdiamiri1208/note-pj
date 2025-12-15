@@ -1,0 +1,15 @@
+:root {
+  --bg: #f3f3f380; /* Light mode background */
+  --MainContent: #fff;
+  --text: #1f2937;
+  --border: #e5e7eb;
+  --shadow: rgba(0, 0, 0, 0.03);
+}
+
+[data-theme="dark"] {
+  --bg: #0f172a;
+  --MainContent: #1e293b;
+  --text: #f1f5f9;
+  --border: #334155;
+  --shadow: rgba(0, 0, 0, 0.2);
+}
