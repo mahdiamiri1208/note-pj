@@ -1,0 +1,112 @@
+/* components/layout/Sidebar.module.css */
+
+.sidebar {
+  width: 260px;
+  min-width: 260px;
+  height: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.03);
+  transition: opacity 0.25s ease;
+  border-right: 1px solid var(--border);
+}
+
+/* حالت غیرفعال (قبل از لاگین) */
+.disabled {
+  opacity: 0.45;
+  pointer-events: none; /* غیرقابل کلیک */
+  filter: grayscale(30%);
+}
+
+/* بالای سایدبار: عکس و نام و ایمیل */
+.userBox {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 12px;
+  align-items: center;
+  padding: 20px 20px 10px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(0, 0, 0, 0.06);
+}
+
+.userInfo {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.userName {
+  font-weight: 600;
+  font-size: 15px;
+  line-height: 1.1;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.userEmail {
+  font-size: 12px;
+  color: var(--text);
+  opacity: 0.7;
+  margin-top: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* منو */
+.nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 20px 20px 0 20px;
+}
+
+.link {
+  display: block;
+  padding: 10px 12px;
+  border-radius: 8px;
+  text-decoration: none;
+  color: var(--text);
+  font-size: 14px;
+  transition: background-color 0.15s, transform 0.08s;
+}
+
+.link:hover {
+  background: rgba(0, 0, 0, 0.04);
+  transform: translateY(-1px);
+}
+
+/* بخش اضافی */
+.extra {
+  display: flex;
+  flex-direction: column;
+  gap: 60px;
+  padding: 60px 20px 20px 20px;
+}
+
+.cta {
+  display: inline-block;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: #2563eb; /* primary */
+  color: white;
+  text-decoration: none;
+  font-weight: 600;
+  text-align: center;
+}
