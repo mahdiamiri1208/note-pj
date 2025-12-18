@@ -1,15 +1,41 @@
 :root {
-  --bg: #f3f3f380; /* Light mode background */
-  --MainContent: #fff;
-  --text: #1f2937;
-  --border: #e5e7eb;
-  --shadow: rgba(0, 0, 0, 0.03);
+  --bg: #f5f5f5;
+  --MainContent: #ffffff;
+
+  --text: #1f1f1f;
+  --text-muted: #6b6b6b; /* طوسی ملایم */
+
+  --border: #d6d6d6;
+  --border-hover: #bfbfbf;
+
+  --shadow: rgba(0, 0, 0, 0.04);
+
+  /* Search Bar GRAY MODE */
+  --search-input-bg: #f0f0f0;
+  --search-input-bg-focus: #ffffff;
+
+  /* Focus + hover بدون رنگ → فقط خاکستری */
+  --primary: #8d8d8d; /* خاکستری خنثی */
+  --primary-hover: rgba(80, 80, 80, 0.22);
 }
 
 [data-theme="dark"] {
-  --bg: #0f172a;
-  --MainContent: #1e293b;
-  --text: #f1f5f9;
-  --border: #334155;
-  --shadow: rgba(0, 0, 0, 0.2);
+  --bg: #0f0f0f;
+  --MainContent: #1a1a1a;
+
+  --text: #f1f1f1;
+  --text-muted: #9a9a9a;
+
+  --border: #3a3a3a;
+  --border-hover: #505050;
+
+  --shadow: rgba(0, 0, 0, 0.5);
+
+  /* Search Bar GRAY MODE */
+  --search-input-bg: #202020;
+  --search-input-bg-focus: #2a2a2a;
+
+  /* Primary (بدون رنگ – grayscale neutral) */
+  --primary: #b3b3b3;
+  --primary-hover: rgba(179, 179, 179, 0.2);
 }

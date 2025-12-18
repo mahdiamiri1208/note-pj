@@ -1,0 +1,91 @@
+.header {
+  padding: 15.65px 26px;
+  border-bottom: 1px solid var(--border);
+  width: 100%;
+  height: max-content;
+}
+
+.bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 14px;
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.back {
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.path {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.actions {
+  display: flex;
+  gap: 30px;
+}
+
+.actions button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+/* قاب سرچ */
+.searchWrapper {
+  position: relative;
+  width: 45%;
+}
+
+/* خود input */
+.search {
+  width: 100%;
+  padding: 8px 14px 8px 40px; /* فضای آیکن از چپ */
+  border-radius: 10px;
+  border: 2px solid var(--border);
+  background-color: var(--search-input-bg);
+  color: var(--text);
+  font-size: 14px;
+  transition: all 0.25s ease;
+  outline: none;
+}
+
+/* آیکن داخل سرچ */
+.searchIcon {
+  position: absolute;
+  top: 50%;
+  left: 12px;
+  transform: translateY(-50%);
+  pointer-events: none;
+  font-size: 16px;
+  opacity: 0.6;
+}
+
+/* حالت فوکوس حرفه‌ای */
+.search:focus {
+  border-color: var(--primary);
+  background-color: var(--search-input-bg-focus);
+  box-shadow: 0 0 6px var(--primary-hover);
+}
+
+/* Placeholder نرم و حرفه‌ای */
+.search::placeholder {
+  color: var(--text-muted);
+  opacity: 0.8;
+}
+
+/* Hover */
+.search:hover {
+  border-color: var(--border-hover);
+}
