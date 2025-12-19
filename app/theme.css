@@ -1,21 +1,14 @@
 :root {
   --bg: #f5f5f5;
   --MainContent: #ffffff;
-
   --text: #1f1f1f;
-  --text-muted: #6b6b6b; /* طوسی ملایم */
-
+  --text-muted: #6b6b6b;
   --border: #d6d6d6;
   --border-hover: #bfbfbf;
-
   --shadow: rgba(0, 0, 0, 0.04);
-
-  /* Search Bar GRAY MODE */
   --search-input-bg: #f0f0f0;
   --search-input-bg-focus: #ffffff;
-
-  /* Focus + hover بدون رنگ → فقط خاکستری */
-  --primary: #8d8d8d; /* خاکستری خنثی */
+  --primary: #8d8d8d;
   --primary-hover: rgba(80, 80, 80, 0.22);
 }
 

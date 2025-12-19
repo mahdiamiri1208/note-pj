@@ -1,8 +1,8 @@
 .header {
-  padding: 15.65px 26px;
+  height: 116px;
+  padding: 15px 26px;
   border-bottom: 1px solid var(--border);
   width: 100%;
-  height: max-content;
 }
 
 .bottom {
@@ -15,18 +15,17 @@
 .breadcrumb {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 5px;
 }
 
 .back {
   border: none;
   background: none;
   cursor: pointer;
-  font-size: 18px;
+  padding: 0;
 }
 
 .path {
-  font-size: 14px;
   color: var(--text-muted);
 }
 
@@ -88,4 +87,11 @@
 /* Hover */
 .search:hover {
   border-color: var(--border-hover);
+}
+
+.iconDarkMode {
+  color: #f0c416d4;
+}
+.iconPerson {
+  color: #3b82f6;
 }
