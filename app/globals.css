@@ -11,9 +11,27 @@ body {
   overflow: hidden; /* قفل کامل */
 }
 
-
 body {
   background-color: var(--bg);
   color: var(--text);
   font-family: system-ui, sans-serif;
+}
+
+.main{
+  height: 100vh;
+  display:flex;
+  align-items: center;
+  justify-content: center;
+  padding: 70px;
+}
+.app-wrapper {
+  display: flex;
+  border-radius: 30px;
+  background-color: #fff;
+  width: 100%;
+  height: 100%;
+}
+
+.content-area {
+  width: 100%;
 }

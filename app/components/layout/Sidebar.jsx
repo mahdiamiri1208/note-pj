@@ -41,7 +41,7 @@ export default function Sidebar() {
             </Link>
           </li>
           <li>
-            <Link href="/topic" className={`${styles.link} ${styles.btnStyle507}`}>
+            <Link href="/topics" className={`${styles.link} ${styles.btnStyle507}`}>
               <TopicIcon className={styles.iconTopic} /> Topics
             </Link>
           </li>
