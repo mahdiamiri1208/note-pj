@@ -1,44 +1,32 @@
-.notesPage {
+.notesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+.notesList {
   display: flex;
   flex-direction: column;
   gap: 20px;
-  /* margin-bottom: 180px; */
 }
 
+/* Toolbar */
 .toolbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 15px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
 }
 
-.leftActions {
-  display: flex;
-  gap: 10px;
-}
-
+.leftActions,
 .rightActions {
   display: flex;
-  gap: 15px;
   align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
-/* دکمه Add Note */
-.cta {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 3px;
-  padding: 8px 12px;
-  border-radius: 10px;
-  background: #2563eb;
-  color: white;
-  border: none;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-/* Layout toggle container */
 .layoutToggle {
   display: flex;
   gap: 8px;
@@ -74,24 +62,40 @@
   color: #656464ff;
 }
 
-/* Notes container */
-.notesGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 15px;
-  margin-bottom: 20px;
-}
-
-.notesList {
+/* CTA Button */
+.cta {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-bottom: 20px;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: #2563eb;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
 }
 
-.noteCard {
-  padding: 15px;
-  border-radius: 10px;
-  background-color: var(--MainContent);
-  box-shadow: 0 0 10px var(--shadow);
+/* Responsive */
+@media (max-width: 768px) {
+  .notesGrid {
+    grid-template-columns: 1fr; /* یک کارد در هر ردیف */
+  }
+
+  .toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .leftActions,
+  .rightActions {
+    justify-content: space-between;
+    width: 100%;
+  }
 }
+
+/* دکمه Add Note */
+
+/* Layout toggle container */

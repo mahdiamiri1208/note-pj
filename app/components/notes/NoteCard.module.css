@@ -1,0 +1,62 @@
+.card {
+  padding: 8px 14px;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 220px; /* بزرگ‌تر شد */
+  width: 100%;
+  box-sizing: border-box;
+  position: relative;
+  transition: transform 0.2s;
+}
+
+/* عنوان */
+.title {
+  font-weight: bold;
+  font-size: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* کانتینر تگ‌ها و محتوا */
+.noteContent {
+  background-color: #ffffff; /* بک‌گراند سفید */
+  border-radius: 12px; /* گوشه‌های گرد */
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+}
+
+/* تگ‌ها */
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  background-color: #fff;
+  border-radius: 10px;
+}
+
+.tag {
+  background-color: rgba(0, 0, 0, 0.08);
+  color: var(--text);
+  padding: 2px 6px;
+  border-radius: 8px;
+  font-size: 11px;
+  height: fit-content;
+}
+
+/* متن نوت */
+.content {
+  font-size: 14px;
+  color: var(--text);
+  width: 100%;
+  height: 100%;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  -webkit-line-clamp: 6; /* مقدار حدس‌زده، بعداً داینامیک می‌کنیم */
+}
