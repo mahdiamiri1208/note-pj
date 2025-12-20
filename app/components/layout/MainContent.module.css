@@ -1,16 +1,13 @@
-/* .wrapper {
+.wrapper {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
+  flex-direction: column;
+  padding: 20px;
+  height: calc(100vh - 116px);
+  overflow-y: hidden;
 }
 
-.main {
-  width: 100%;
-  margin: 0 60px;
-  background-color: var(--MainContent);
-  border-radius: 30px;
-  box-shadow: 0 0 14px var(--shadow);
-  overflow: hidden; 
-  display: flex;
-} */
+.scrollArea {
+  overflow-y: auto;
+  padding-right: 10px;
+  margin-bottom: 120px;
+}

@@ -17,12 +17,12 @@ body {
   font-family: system-ui, sans-serif;
 }
 
-.main{
+.main {
   height: 100vh;
-  display:flex;
+  display: flex;
   align-items: center;
   justify-content: center;
-  padding: 70px;
+  padding: 60px 100px;
 }
 .app-wrapper {
   display: flex;
@@ -34,4 +34,5 @@ body {
 
 .content-area {
   width: 100%;
+  overflow: hidden;
 }
