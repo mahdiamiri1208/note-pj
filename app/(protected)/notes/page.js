@@ -6,7 +6,7 @@ import WindowIcon from "@mui/icons-material/Window";
 import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import AddIcon from "@mui/icons-material/Add";
-import NoteCard from "../components/notes/NoteCard";
+import NoteCard from "../../components/notes/NoteCard";
 
 export default function NotesPage() {
   const [layout, setLayout] = useState("grid"); // "grid" یا "list"

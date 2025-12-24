@@ -1,22 +1,3 @@
-* {
-  transition: background-color 0.25s ease, color 0.25s ease;
-}
-
-html,
-body {
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden; /* قفل کامل */
-}
-
-body {
-  background-color: var(--bg);
-  color: var(--text);
-  font-family: system-ui, sans-serif;
-}
-
 .main {
   height: 100vh;
   display: flex;
