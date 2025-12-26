@@ -4,11 +4,14 @@ import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import styles from "./login.module.css";
 import SocialLogin from "./components/auth/SocialLogin";
+import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
 
 const SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
 const OTP_TTL = Number(process.env.NEXT_PUBLIC_OTP_TTL_SECONDS || 300);
 
 export default function LoginPage() {
+  const router = useRouter();
   const [step, setStep] = useState(1);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -129,20 +132,22 @@ export default function LoginPage() {
     setError("");
 
     try {
-      const res = await fetch("/api/auth/verify-otp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, otp }),
+      // از NextAuth Credentials استفاده می‌کنیم — redirect: false برای کنترل دستی
+      const res = await signIn("credentials", {
+        redirect: false,
+        email,
+        otp,
       });
 
-      const data = await res.json();
-
-      if (!data.ok) {
-        setError(data.message || "Wrong OTP");
+      // res: { error, ok, status } اگر error وجود داشته باشد یعنی authorize برگشت null
+      if (res?.error) {
+        setError(res.error || "Wrong OTP");
       } else {
-        window.location.href = "/protected";
+        // لاگین موفق → NextAuth سشن/کوکی را ست کرده
+        router.push("/notes");
       }
-    } catch {
+    } catch (err) {
+      console.error("signIn error:", err);
       setError("Server error");
     } finally {
       setLoading(false);
@@ -187,7 +192,6 @@ export default function LoginPage() {
       <div className={styles.card}>
         <h1 className={styles.title}>Welcome Back</h1>
         <p className={styles.subtitle}>Login to your account</p>
-
         {step === 1 && (
           <form className={styles.form} onSubmit={handleLogin}>
             <input

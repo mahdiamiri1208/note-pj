@@ -1,8 +1,7 @@
-// app/protected/ProtectedLayout.jsx
-import Sidebar from "../components/layout/Sidebar";
 import Header from "../components/layout/Header";
 import MainContent from "../components/layout/MainContent";
 import styles from "./layout.module.css";
+import Sidebar from "../components/layout/Sidebar";
 
 export default function ProtectedLayout({ children, landing }) {
   return (
