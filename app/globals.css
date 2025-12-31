@@ -50,3 +50,18 @@ body {
   align-items: center;
   z-index: 50;
 }
+@supports (view-transition-name: root) {
+  html {
+    view-transition-name: root;
+  }
+
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 0.5s;
+    animation-timing-function: ease-out;
+  }
+
+  ::view-transition-old(root) {
+    animation: none;
+  }
+}

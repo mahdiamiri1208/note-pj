@@ -1,4 +1,3 @@
-// components/Header/Header.jsx
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
@@ -7,14 +6,18 @@ import styles from "./Header.module.css";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import SearchIcon from "@mui/icons-material/Search";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
+import LightModeIcon from "@mui/icons-material/LightMode";
 import PersonIcon from "@mui/icons-material/Person";
 import { signOut } from "next-auth/react";
+import { ThemeToggleButton } from "../theme-toggle-button";
+import { useTheme } from "@/context/ThemeContext";
 
 export default function Header() {
   const pathname = usePathname();
   const router = useRouter();
   const [profileOpen, setProfileOpen] = useState(false);
   const profileRef = useRef(null);
+  const { theme, toggleTheme } = useTheme();
 
   const segments = (pathname || "/").split("/").filter(Boolean);
 
@@ -29,47 +32,28 @@ export default function Header() {
   }, []);
 
   const handleLogout = async () => {
-    try {
-      // عدم redirect خودکار توسط next-auth تا بتوانیم router.replace کنیم
-      await signOut({ redirect: false });
-      // پاک‌سازی local/session storage در کلاینت (اختیاری)
-      try {
-        localStorage.clear();
-        sessionStorage.clear();
-      } catch {}
-      router.replace("/");
-    } catch (err) {
-      console.error("Logout error:", err);
-      router.replace("/");
-    }
+    await signOut({ redirect: false });
+    router.replace("/");
   };
 
   return (
     <header className={styles.header}>
-      <div>
-        <div className={styles.breadcrumb}>
-          <button
-            onClick={() => router.back()}
-            className={styles.back}
-            title="Go back"
-          >
-            <ArrowBackIosIcon sx={{ fontSize: 18 }} />
-          </button>
+      <div className={styles.breadcrumb}>
+        <button onClick={() => router.back()} className={styles.back}>
+          <ArrowBackIosIcon sx={{ fontSize: 18 }} />
+        </button>
 
-          <span className={styles.path}>
-            Home
-            {segments.map((seg, i) => (
-              <span key={i}> / {seg}</span>
-            ))}
-          </span>
-        </div>
+        <span className={styles.path}>
+          Home
+          {segments.map((seg, i) => (
+            <span key={i}> / {seg}</span>
+          ))}
+        </span>
       </div>
 
       <div className={styles.bottom}>
         <div className={styles.searchWrapper}>
-          <span className={styles.searchIcon}>
-            <SearchIcon />
-          </span>
+          <SearchIcon className={styles.searchIcon} />
           <input
             type="text"
             className={styles.search}
@@ -78,13 +62,15 @@ export default function Header() {
         </div>
 
         <div className={styles.actions} ref={profileRef}>
-          <button className={styles.iconDarkMode} title="Toggle theme">
-            <DarkModeIcon />
-          </button>
-
+          <ThemeToggleButton
+            start="top-right"
+            onClick={toggleTheme}
+            className={styles.iconDarkMode}
+          >
+            {theme === "light" ? <DarkModeIcon /> : <LightModeIcon />}
+          </ThemeToggleButton>
           <button
             className={styles.iconPerson}
-            title="Profile"
             onClick={() => setProfileOpen((p) => !p)}
           >
             <PersonIcon />

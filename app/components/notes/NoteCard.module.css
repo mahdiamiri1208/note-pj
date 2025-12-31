@@ -22,7 +22,7 @@
 
 /* کانتینر تگ‌ها و محتوا */
 .noteContent {
-  background-color: #ffffff; /* بک‌گراند سفید */
+  background-color: var(--note-content); /* بک‌گراند سفید */
   border-radius: 12px; /* گوشه‌های گرد */
   padding: 12px;
   display: flex;
@@ -36,12 +36,11 @@
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  background-color: #fff;
   border-radius: 10px;
 }
 
 .tag {
-  background-color: rgba(0, 0, 0, 0.08);
+  background-color: var(--tags);
   color: var(--text);
   padding: 2px 6px;
   border-radius: 8px;

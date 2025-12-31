@@ -8,7 +8,7 @@
 .appWrapper {
   display: flex;
   border-radius: 30px;
-  background-color: #fff;
+  background-color: var(--surface);
   width: 100%;
   height: 100%;
 }

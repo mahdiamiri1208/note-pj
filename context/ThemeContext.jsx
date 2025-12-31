@@ -1,26 +1,38 @@
-// context/ThemeContext.jsx
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState, useCallback } from "react";
 
-const ThemeContext = createContext();
+const ThemeContext = createContext(null);
 
 export function ThemeProvider({ children }) {
-  const [theme, setTheme] = useState("light"); // light | dark
+  const [theme, setTheme] = useState("light");
 
+  // load saved theme
   useEffect(() => {
-    const savedTheme = localStorage.getItem("theme");
-    if (savedTheme) setTheme(savedTheme);
+    const saved = localStorage.getItem("theme");
+    if (saved === "light" || saved === "dark") {
+      setTheme(saved);
+    }
   }, []);
 
+  // apply theme to html
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
     localStorage.setItem("theme", theme);
   }, [theme]);
 
-  function toggleTheme() {
-    setTheme(prev => (prev === "light" ? "dark" : "light"));
-  }
+  const toggleTheme = useCallback(() => {
+    const updateTheme = () => {
+      setTheme((prev) => (prev === "light" ? "dark" : "light"));
+    };
+
+    // 🔥 اینجاست که جادو اتفاق میفته
+    if (document.startViewTransition) {
+      document.startViewTransition(updateTheme);
+    } else {
+      updateTheme();
+    }
+  }, []);
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>
@@ -30,5 +42,7 @@ export function ThemeProvider({ children }) {
 }
 
 export function useTheme() {
-  return useContext(ThemeContext);
+  const ctx = useContext(ThemeContext);
+  if (!ctx) throw new Error("useTheme must be used inside ThemeProvider");
+  return ctx;
 }

@@ -25,7 +25,7 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  height: 116px;
+  min-height: 116px;
   gap: 12px;
   align-items: center;
   padding: 20px 20px 10px 20px;
@@ -100,7 +100,7 @@
 .btnStyle507 {
   position: relative;
   border-color: #ffff;
-  color: #000000ff;
+  color: var(--text);
   overflow: hidden;
 }
 
@@ -109,7 +109,7 @@
   position: absolute;
   top: 0;
   left: 0;
-  background-color: #e6efff;
+  background-color: var(--link-hover);
   transform: rotateZ(-45deg) translate(-50%, -50%);
   transition: all 0.3s;
   content: "";

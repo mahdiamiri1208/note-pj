@@ -35,7 +35,7 @@
 }
 
 .input {
-  background: var(--search-input-bg);
+  background-color: var(--bg);
   border: 1px solid var(--border);
   padding: 12px 14px;
   border-radius: 10px;

@@ -33,7 +33,7 @@
   background-color: var(--bg);
   border-radius: 10px;
   padding: 6px;
-  border: 1px solid #e7e7e7eb;
+  border: var(--border);
 }
 
 .icon {
@@ -45,7 +45,7 @@
 
 .activeIcon {
   cursor: pointer;
-  color: #111111d6; /* رنگ فعال */
+  color: var(--activeIcon); /* رنگ فعال */
   font-size: 28px;
 }
 
@@ -58,7 +58,7 @@
   border-radius: 10px;
   background-color: var(--bg);
   cursor: pointer;
-  border: 1px solid #e7e7e7eb;
+  border: var(--border);
   color: #656464ff;
 }
 
