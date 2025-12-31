@@ -1,16 +1,15 @@
-// components/layout/Sidebar.jsx
 "use client";
 
 import Link from "next/link";
 import styles from "./Sidebar.module.css";
-import useAuth from "../../auth/useAuth"; // نمونه: بعدا به auth واقعی وصل کن
+import useAuth from "../../auth/useAuth";
 import NotesIcon from "@mui/icons-material/Notes";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import ScheduleIcon from "@mui/icons-material/Schedule";
 import LocalOfferIcon from "@mui/icons-material/LocalOffer";
 import TopicIcon from "@mui/icons-material/Topic";
-import AddIcon from '@mui/icons-material/Add';
-import SettingsIcon from '@mui/icons-material/Settings';
+import AddIcon from "@mui/icons-material/Add";
+import SettingsIcon from "@mui/icons-material/Settings";
 
 export default function Sidebar() {
   const { user, isAuthenticated } = useAuth();
@@ -32,35 +31,74 @@ export default function Sidebar() {
         </div>
       </div>
 
+      {/* تیتر اصلی */}
+
       {/* منوی اصلی */}
       <nav className={styles.nav}>
+        <div
+          className="px-4 mb-1 text-sm"
+          style={{ color: "#878787", fontSize: "14px" }}
+        >
+          Main
+        </div>
         <ul>
+          {/* ✅ All Notes فعال */}
           <li>
-            <Link href="/notes" className={`${styles.link} ${styles.btnStyle507}`}>
+            <Link
+              href="/notes"
+              className={`${styles.link} ${styles.btnStyle507}`}
+            >
               <NotesIcon className={styles.iconNotes} /> All Notes
             </Link>
           </li>
+
+          {/* بخش در دست ساخت - کاملاً غیرفعال */}
+          <div
+            className="px-1 mb-1 text-sm"
+            style={{ color: "#878787", fontSize: "14px" }}
+          >
+            Under development (soon)
+          </div>
+
           <li>
-            <Link href="/topics" className={`${styles.link} ${styles.btnStyle507}`}>
+            <span
+              className={`${styles.link} ${styles.btnStyle507} ${styles.fullyDisabled}`}
+              aria-disabled="true"
+              role="button"
+              tabIndex={-1}
+            >
               <TopicIcon className={styles.iconTopic} /> Topics
-            </Link>
+            </span>
           </li>
           <li>
-            <Link href="/notes?filter=favorites" className={`${styles.link} ${styles.btnStyle507}`}>
+            <span
+              className={`${styles.link} ${styles.btnStyle507} ${styles.fullyDisabled}`}
+              aria-disabled="true"
+              role="button"
+              tabIndex={-1}
+            >
               <FavoriteIcon className={styles.iconFavorite} /> Favorites
-            </Link>
+            </span>
           </li>
-
           <li>
-            <Link href="/notes?filter=recent" className={`${styles.link} ${styles.btnStyle507}`}>
+            <span
+              className={`${styles.link} ${styles.btnStyle507} ${styles.fullyDisabled}`}
+              aria-disabled="true"
+              role="button"
+              tabIndex={-1}
+            >
               <ScheduleIcon className={styles.iconRecent} /> Recent Notes
-            </Link>
+            </span>
           </li>
-
           <li>
-            <Link href="/tags" className={`${styles.link} ${styles.btnStyle507}`}>
+            <span
+              className={`${styles.link} ${styles.btnStyle507} ${styles.fullyDisabled}`}
+              aria-disabled="true"
+              role="button"
+              tabIndex={-1}
+            >
               <LocalOfferIcon className={styles.iconTags} /> Tags
-            </Link>
+            </span>
           </li>
         </ul>
       </nav>
@@ -72,7 +110,7 @@ export default function Sidebar() {
         </Link>
 
         <Link href="/settings" className={`${styles.link} ${styles.btnStyle507}`}>
-          <SettingsIcon className={styles.iconSettings}/> Settings
+          <SettingsIcon className={styles.iconSettings} /> Settings
         </Link>
       </div>
     </aside>
