@@ -109,7 +109,7 @@ export default function Sidebar() {
           <AddIcon /> Create Note
         </Link>
 
-        <Link href="/settings" className={`${styles.link} ${styles.btnStyle507}`}>
+        <Link href="/setting" className={`${styles.link} ${styles.btnStyle507}`}>
           <SettingsIcon className={styles.iconSettings} /> Settings
         </Link>
       </div>
