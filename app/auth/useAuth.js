@@ -4,8 +4,7 @@ export default function useAuth() {
   // برای تست می‌تونی user را null یا یک آبجکت قرار بدی
   const user = {
     name: "Mahdi meydan miri",
-    email: "mahdi@example.com",
-    avatar: "/avatar.png",
+
   };
 
   // const user = null; // برای حالت لاگین‌نشده تست کن

@@ -10,9 +10,23 @@ import LocalOfferIcon from "@mui/icons-material/LocalOffer";
 import TopicIcon from "@mui/icons-material/Topic";
 import AddIcon from "@mui/icons-material/Add";
 import SettingsIcon from "@mui/icons-material/Settings";
+import Image from "next/image";
+import { useTheme } from "@/context/ThemeContext";
+import { useEffect, useState } from "react";
 
 export default function Sidebar() {
   const { user, isAuthenticated } = useAuth();
+
+  const { theme } = useTheme();
+
+  const isDark = theme === "dark";  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
+
 
   return (
     <aside
@@ -21,10 +35,18 @@ export default function Sidebar() {
     >
       {/* بالای سایدبار: عکس و نام و ایمیل */}
       <div className={styles.userBox}>
-        <img
-          src={user?.avatar || "/avatar.png"}
-          alt={user?.name || "Guest avatar"}
-          className={styles.avatar}
+        <Image
+          src={
+            user?.avatar
+              ? user.avatar
+              : isDark
+              ? "/dark-logo.png"
+              : "/light-logo.png"
+          }
+          alt={user?.name || "logo"}
+          width={95}
+          height={70}
+          priority
         />
         <div className={styles.userInfo}>
           <div className={styles.userName}>{user?.name || "مهمان"}</div>
@@ -109,7 +131,10 @@ export default function Sidebar() {
           <AddIcon /> Create Note
         </Link>
 
-        <Link href="/setting" className={`${styles.link} ${styles.btnStyle507}`}>
+        <Link
+          href="/setting"
+          className={`${styles.link} ${styles.btnStyle507}`}
+        >
           <SettingsIcon className={styles.iconSettings} /> Settings
         </Link>
       </div>
