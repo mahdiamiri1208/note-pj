@@ -1,0 +1,233 @@
+/* newnote.module.css */
+.wrapper {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 24px;
+  padding: 24px;
+  align-items: start;
+}
+
+/* responsive */
+@media (max-width: 900px) {
+  .wrapper {
+    grid-template-columns: 1fr;
+    padding: 16px;
+  }
+}
+
+.form {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px;
+  box-shadow: 0 6px 20px var(--shadow);
+}
+
+.heading {
+  margin: 0 0 12px;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.label {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 12px;
+  font-size: 13px;
+  color: var(--text-muted);
+  gap: 5px;
+}
+
+.input,
+.textarea {
+  margin-top: 6px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background-color: var(--surface);
+  color: var(--text);
+  outline: none;
+  transition: box-shadow 0.18s, border-color 0.18s;
+}
+
+.input:focus,
+.textarea:focus {
+  border-color: var(--border-hover);
+  box-shadow: 0 6px 18px var(--shadow);
+  background: var(--search-input-bg-focus);
+}
+.noTags{
+  color: #1f1f1fff;
+}
+.textarea {
+  resize: vertical;
+  min-height: 140px;
+}
+
+/* tags + colors */
+.row {
+  display: flex;
+  gap: 18px;
+  margin-top: 6px;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .row {
+    flex-direction: column;
+  }
+}
+
+.col {
+  flex: 1;
+}
+
+.subHead {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tag {
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.tag:hover {
+  transform: translateY(-2px);
+}
+.tagActive {
+  background: var(--surface-2);
+  border-color: var(--border);
+  box-shadow: 0 6px 14px var(--shadow);
+}
+
+/* colors */
+.colors {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.colorSwatch {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform 0.12s, box-shadow 0.12s;
+}
+.colorSwatch:hover {
+  transform: translateY(-3px);
+}
+.colorActive {
+  box-shadow: 0 8px 22px var(--shadow);
+  transform: scale(1.06);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+/* actions */
+.actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
+.btnPrimary {
+  background: linear-gradient(135deg, #2563eb, #4f46e5);
+  color: #fff;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+.btnPrimary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btnCancel {
+  background: transparent;
+  border: 1px solid var(--border);
+  padding: 8px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+/* error */
+.error {
+  color: #d9534f;
+  margin-top: 8px;
+  font-size: 13px;
+}
+
+/* preview */
+.preview {
+  position: relative;
+}
+
+.previewCard {
+  border-radius: 12px;
+  padding: 16px;
+  border: 2px solid transparent;
+  min-height: 200px;
+  box-shadow: 0 8px 24px var(--shadow);
+  background: var(--note-content);
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  overflow: hidden;
+}
+
+.previewTitle {
+  font-weight: 700;
+  font-size: 18px;
+}
+
+.previewTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  border-radius: 10px;
+  font-size: 13px;
+}
+.previewTag {
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text);
+  cursor: pointer;
+  transition: all 0.15s;
+  background-color: var(--tags);
+  height: fit-content;
+}
+.previewContent {
+  font-size: 14px;
+  color: var(--text);
+  white-space: pre-wrap; /* احترام به Enter + شکستن خط */
+  word-wrap: break-word; /* قدیمی */
+  overflow-wrap: break-word; /* استاندارد */
+  word-break: break-word; /* برای متن‌های طولانی بدون فاصله */
+  background-color: var(--note-content); /* بک‌گراند سفید */
+  border-radius: 12px; /* گوشه‌های گرد */
+  padding: 12px;
+  line-height: 1.7;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+}

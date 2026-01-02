@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 import styles from "./notes.module.css";
 import WindowIcon from "@mui/icons-material/Window";
 import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
@@ -57,9 +58,9 @@ const notes = [
       <div className={styles.toolbar}>
         {/* سمت چپ: Add Note */}
         <div className={styles.leftActions}>
-          <button className={styles.cta}>
+          <Link href="/notes/new" className={styles.cta}>
             <AddIcon sx={{ fontSize: "18px" }} /> Add Note
-          </button>
+          </Link>
         </div>
 
         {/* سمت راست: Layout + Filter */}
