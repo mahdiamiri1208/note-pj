@@ -1,9 +1,11 @@
 "use client";
-import { useState } from "react";
-import styles from "./AddNote.module.css";
-import { toast, ToastContainer } from "react-toastify";
+
+import { useState, useEffect } from "react";
+import { useParams, useRouter } from "next/navigation";
+import styles from "./EditNote.module.css"; // همان CSS AddNote
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useTheme } from "@/context/ThemeContext"; // فرض: تم پروژه
+import { useTheme } from "@/context/ThemeContext";
 
 const COLOR_OPTIONS = [
   { id: "yellow", bg: "#fff9e6", title: "#f8d302", border: "#fff2b3" },
@@ -15,8 +17,10 @@ const COLOR_OPTIONS = [
 
 const DEFAULT_TAGS = ["Work", "Personal", "Important"];
 
-export default function NewNote() {
-  const { theme } = useTheme(); // light | dark
+export default function EditNote() {
+  const { theme } = useTheme();
+  const router = useRouter();
+  const { id } = useParams(); // نوت ID از URL
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
@@ -24,29 +28,60 @@ export default function NewNote() {
   const [selectedColor, setSelectedColor] = useState("yellow");
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  // بارگذاری داده نوت
+  useEffect(() => {
+    fetch(`/api/notes/${id}`)
+      .then((res) => res.json())
+      .then((data) => {
+        setTitle(data.title || "");
+        setContent(data.content || "");
+        setSelectedTags(data.tags || []);
+        setSelectedColor(data.color || "yellow");
+        setLoading(false);
+      })
+      .catch(() => {
+        toast.error("Failed to load note", { theme });
+        setLoading(false);
+      });
+  }, [id, theme]);
 
   const validate = () => {
     const newErrors = {};
+
     if (!title.trim()) newErrors.title = "Title is required";
+    else if (title.trim().length < 3)
+      newErrors.title = "Title must be at least 3 characters";
+    else if (title.trim().length > 100)
+      newErrors.title = "Title cannot exceed 100 characters";
+
     if (!content.trim()) newErrors.content = "Content is required";
+    else if (content.trim().length < 3)
+      newErrors.content = "Content must be at least 3 characters";
+    else if (content.trim().length > 1000)
+      newErrors.content = "Content cannot exceed 1000 characters";
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async () => {
+  const toggleTag = (tag) => {
+    setSelectedTags((prev) =>
+      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
+    );
+  };
+
+  const handleUpdate = async () => {
     if (!validate()) {
-      toast.error("Invalid data", {
-        position: "top-right",
-        autoClose: 3000,
-        theme: theme,
-      });
+      toast.error("Please fix validation errors.", { theme });
       return;
     }
 
     setIsSubmitting(true);
     try {
-      const res = await fetch("/api/notes", {
-        method: "POST",
+      const res = await fetch(`/api/notes/${id}`, {
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title,
@@ -58,43 +93,24 @@ export default function NewNote() {
 
       if (!res.ok) throw new Error();
 
-      toast.success("Note saved successfully!", {
-        position: "top-right",
-        autoClose: 3000,
-        theme: theme,
-      });
-
-      // reset form
-      setTitle("");
-      setContent("");
-      setSelectedTags([]);
-      setSelectedColor("yellow");
-      setErrors({});
+      toast.success("Note updated successfully!", { theme });
+      router.push("/notes");
     } catch {
-      toast.error("Failed to save note.", {
-        position: "top-right",
-        autoClose: 3000,
-        theme: theme,
-      });
+      toast.error("Failed to update note.", { theme });
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const toggleTag = (tag) => {
-    setSelectedTags((prev) =>
-      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
-    );
-  };
-
   const activeColor =
     COLOR_OPTIONS.find((c) => c.id === selectedColor) || COLOR_OPTIONS[0];
 
+  if (loading) return <p>Loading...</p>;
+
   return (
     <div className={styles.wrapper}>
-      {/* فرم */}
       <div className={styles.form}>
-        <h4 className={styles.heading}>Create New Note</h4>
+        <h4 className={styles.heading}>Edit Note</h4>
 
         <label className={styles.label}>
           Title
@@ -160,15 +176,14 @@ export default function NewNote() {
         <div className={styles.actions}>
           <button
             className={styles.btnPrimary}
-            onClick={handleSubmit}
+            onClick={handleUpdate}
             disabled={isSubmitting}
           >
-            {isSubmitting ? "Saving..." : "Save Note"}
+            {isSubmitting ? "Updating..." : "Update Note"}
           </button>
         </div>
       </div>
 
-      {/* پیش‌نمایش */}
       <aside className={styles.preview}>
         <div
           className={styles.previewCard}
@@ -199,8 +214,6 @@ export default function NewNote() {
           </div>
         </div>
       </aside>
-
-      <ToastContainer />
     </div>
   );
 }

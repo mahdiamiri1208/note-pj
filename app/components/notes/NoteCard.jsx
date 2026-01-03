@@ -1,23 +1,84 @@
+// components/notes/NoteCard.jsx
+"use client";
+
 import React, { useState } from "react";
+import dynamic from "next/dynamic";
 import styles from "./NoteCard.module.css";
 import { generateNoteColors } from "../../utils/color";
-
-import SpeedDial from "@mui/material/SpeedDial";
-import SpeedDialAction from "@mui/material/SpeedDialAction";
+import { useRouter } from "next/navigation";
+import Swal from "sweetalert2";
+import { toast } from "react-toastify";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { useTheme } from "@/context/ThemeContext";
 
-export default function NoteCard({ title, content, tags, color, layout }) {
+// Dynamic import to avoid MUI + App Router SSR bug
+const SpeedDial = dynamic(() => import("@mui/material/SpeedDial"), { ssr: false });
+const SpeedDialAction = dynamic(() => import("@mui/material/SpeedDialAction"), { ssr: false });
+
+export default function NoteCard({
+  _id,
+  title,
+  content,
+  tags = [],
+  color,
+  layout,
+  onDelete, // <-- callback از والد برای حذف فوری در UI
+}) {
   const colors = generateNoteColors(color);
-
+  const router = useRouter();
   const minHeight = layout === "list" ? "160px" : "240px";
-
   const [open, setOpen] = useState(false);
+  const { theme } = useTheme(); // light | dark
+
+  const handleDelete = async () => {
+    setOpen(false);
+
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "This note will be permanently deleted!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, delete it",
+      cancelButtonText: "Cancel",
+      reverseButtons: true,
+      background: theme === "dark" ? "#1f2937" : "#fff",
+      color: theme === "dark" ? "#fff" : "#000",
+    });
+
+    if (!result.isConfirmed) return;
+
+    try {
+      const res = await fetch(`/api/notes/${_id}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      // سعی کنیم پیام خطا/موفقیت برگشتی را دقیق نشان دهیم
+      let data = null;
+      try { data = await res.json(); } catch (e) { /* ignore */ }
+
+      if (res.ok) {
+        toast.success(data?.message || "Note deleted");
+        // مهم: callback والد را فراخوانی کن تا خودش state را آپدیت کند
+        if (typeof onDelete === "function") {
+          onDelete(_id);
+        }
+      } else {
+        const msg = data?.message || `Delete failed (${res.status})`;
+        toast.error(msg);
+        console.error("Delete failed:", res.status, data);
+      }
+    } catch (err) {
+      console.error("Delete error:", err);
+      toast.error("Failed to delete note");
+    }
+  };
 
   const actions = [
-    { icon: <EditIcon sx={{ color: "#2979ff" }} />, name: "Edit" },
-    { icon: <DeleteIcon sx={{ color: "#d32f2f" }} />, name: "Delete" },
+    { icon: <EditIcon sx={{ color: "#2979ff" }} />, name: "Edit", onClick: () => router.push(`/notes/edit/${_id}`) },
+    { icon: <DeleteIcon sx={{ color: "#d32f2f" }} />, name: "Delete", onClick: handleDelete },
   ];
 
   return (
@@ -30,43 +91,27 @@ export default function NoteCard({ title, content, tags, color, layout }) {
         position: "relative",
       }}
     >
-      {/* Title + 3-dot */}
       <div className={styles.title} style={{ color: colors.title }}>
         <span>{title}</span>
 
         <SpeedDial
-          ariaLabel="note-actions"
+          ariaLabel="note-actions" // ضروری برای دسترسی و امن بودن
           icon={<MoreHorizIcon sx={{ color: colors.title }} />}
           direction="left"
           open={open}
-          onClick={() => setOpen(!open)}
+          onClick={() => setOpen((s) => !s)}
           FabProps={{
-            sx: {
-              background: "transparent !important",
-              boxShadow: "none",
-              width: 32,
-              height: 32,
-              minHeight: 32,
-              "&:hover": { background: "transparent" }, // هاور حذف شد
-            },
+            "aria-label": "note-actions",
+            sx: { background: "transparent !important", boxShadow: "none", width: 32, height: 32 },
           }}
-          sx={{
-            position: "absolute",
-            top: 7,
-            right: 7,
-            "& .MuiSpeedDial-fab": {
-              boxShadow: "none",
-            },
-            "& .MuiSpeedDial-actions": {
-              gap: "2px", // فاصله بین اکشن‌ها
-            },
-          }}
+          sx={{ position: "absolute", top: 7, right: 7, "& .MuiSpeedDial-actions": { gap: "2px" } }}
         >
           {actions.map((action) => (
             <SpeedDialAction
               key={action.name}
               icon={action.icon}
               tooltipTitle={action.name}
+              onClick={action.onClick}
               sx={{
                 background: "transparent !important",
                 boxShadow: "none",
@@ -83,19 +128,14 @@ export default function NoteCard({ title, content, tags, color, layout }) {
                   background: "transparent !important",
                   boxShadow: "none",
                 },
-                "& .MuiSpeedDialAction-fab svg": {
-                  fontSize: 18,
-                },
-                "& .MuiSpeedDialAction-staticTooltipLabel": {
-                  fontSize: 10,
-                },
+                "& .MuiSpeedDialAction-fab svg": { fontSize: 18 },
+                "& .MuiSpeedDialAction-staticTooltipLabel": { fontSize: 10 },
               }}
             />
           ))}
         </SpeedDial>
       </div>
 
-      {/* Body */}
       <div className={styles.noteContent}>
         <div className={styles.tags}>
           {tags?.map((tag, i) => (
@@ -104,8 +144,7 @@ export default function NoteCard({ title, content, tags, color, layout }) {
             </span>
           ))}
         </div>
-
-        <div className={styles.content}>{content}</div>
+        <div className={`${styles.content} ${styles.contentText}`}>{content}</div>
       </div>
     </div>
   );
