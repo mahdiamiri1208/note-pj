@@ -43,6 +43,59 @@ export default function NewNote() {
   const [content, setContent] = useState("");
   const [selectedTags, setSelectedTags] = useState([]);
   const [selectedColor, setSelectedColor] = useState("yellow");
+  const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const validate = () => {
+  const newErrors = {};
+
+  if (!title.trim()) {
+    newErrors.title = "Title is required";
+  } else if (title.length < 3) {
+    newErrors.title = "Title must be at least 3 characters";
+  }
+
+  if (!content.trim()) {
+    newErrors.content = "Content is required";
+  }
+
+  setErrors(newErrors);
+  return Object.keys(newErrors).length === 0;
+};
+
+
+const handleSubmit = async () => {
+  if (!validate()) return;
+
+  setIsSubmitting(true);
+
+  try {
+    const res = await fetch("/api/notes", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title,
+        content,
+        tags: selectedTags,
+        color: selectedColor,
+      }),
+    });
+
+    if (!res.ok) throw new Error("Failed to save note");
+
+    // ریست فرم
+    setTitle("");
+    setContent("");
+    setSelectedTags([]);
+    setSelectedColor("yellow");
+    setErrors({});
+  } catch (err) {
+    alert("Error saving note");
+  } finally {
+    setIsSubmitting(false);
+  }
+};
+
 
   const toggleTag = (tag) => {
     setSelectedTags((prev) =>
@@ -62,21 +115,29 @@ export default function NewNote() {
         <label className={styles.label}>
           Title
           <input
-            className={styles.input}
+            className={`${styles.input} ${
+              errors.title ? styles.inputError : ""
+            }`}
             placeholder="Enter note title..."
             value={title}
             onChange={(e) => setTitle(e.target.value)}
           />
+          {errors.title && <span className={styles.error}>{errors.title}</span>}
         </label>
 
         <label className={styles.label}>
           Content
           <textarea
-            className={styles.textarea}
+            className={`${styles.textarea} ${
+              errors.content ? styles.inputError : ""
+            }`}
             placeholder="Write your note..."
             value={content}
             onChange={(e) => setContent(e.target.value)}
           />
+          {errors.content && (
+            <span className={styles.error}>{errors.content}</span>
+          )}
         </label>
 
         <div className={styles.label}>
@@ -110,6 +171,16 @@ export default function NewNote() {
               />
             ))}
           </div>
+        </div>
+
+        <div className={styles.actions}>
+          <button
+            className={styles.btnPrimary}
+            onClick={handleSubmit}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "Saving..." : "Save Note"}
+          </button>
         </div>
       </div>
 
