@@ -8,8 +8,13 @@ import WindowIcon from "@mui/icons-material/Window";
 import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import AddIcon from "@mui/icons-material/Add";
+
 import NoteCard from "../../components/notes/NoteCard";
 
+<<<<<<< HEAD
+=======
+/* fallback (در صورتی که API مشکل داشت) */
+>>>>>>> a6c5113fc7ba1b67cecbc838711452cef72a283e
 const FALLBACK_TAGS = ["Work", "Personal", "Important", "Office", "Home", "Health"];
 const FALLBACK_COLORS = ["yellow", "green", "blue", "red", "gray"];
 
