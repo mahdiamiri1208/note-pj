@@ -18,6 +18,13 @@ export default function Header() {
   const [profileOpen, setProfileOpen] = useState(false);
   const profileRef = useRef(null);
   const { theme, toggleTheme } = useTheme();
+  const [search, setSearch] = useState("");
+
+  const handleSearch = (e) => {
+    if (e.key === "Enter") {
+      router.push(`/notes?q=${encodeURIComponent(search)}`);
+    }
+  };
 
   const segments = (pathname || "/").split("/").filter(Boolean);
 
@@ -58,6 +65,9 @@ export default function Header() {
             type="text"
             className={styles.search}
             placeholder="Search your notes..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            onKeyDown={handleSearch}
           />
         </div>
 

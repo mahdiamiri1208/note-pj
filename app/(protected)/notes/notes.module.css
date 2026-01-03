@@ -97,6 +97,99 @@
   }
 }
 
-/* دکمه Add Note */
+/* Filter wrapper */
+.filterWrapper {
+  position: relative;
+}
 
-/* Layout toggle container */
+/* Dropdown container */
+.filterDropdown {
+  position: absolute;
+  top: 110%;
+  right: 0;
+  width: 260px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 0 10px var(--shadow);
+  z-index: 1051;
+}
+
+/* Sections */
+.dropdownSection {
+  margin-bottom: 12px;
+}
+
+.dropdownTitle {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: var(--muted-text);
+}
+
+/* Options */
+.optionsRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.optionItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.optionItem input {
+  accent-color: var(--primary);
+}
+
+/* Color dots */
+.colorDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.colorDot[data-color="red"] {
+  background: #ef4444;
+}
+.colorDot[data-color="blue"] {
+  background: #3b82f6;
+}
+.colorDot[data-color="green"] {
+  background: #22c55e;
+}
+.colorDot[data-color="yellow"] {
+  background: #eab308;
+}
+.colorDot[data-color="gray"] {
+  background: #9ca3af;
+}
+
+/* Clear button */
+.clearBtn {
+  width: 100%;
+  margin-top: 6px;
+  padding: 6px;
+  font-size: 12px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: var(--danger);
+  cursor: pointer;
+}
+
+.clearBtn:hover {
+  background: rgba(239, 68, 68, 0.1);
+}
+.info{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 280px;
+}
