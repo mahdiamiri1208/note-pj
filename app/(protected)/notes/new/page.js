@@ -1,19 +1,10 @@
 "use client";
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import styles from "./AddNote.module.css";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useTheme } from "@/context/ThemeContext"; // فرض: تم پروژه
-
-const COLOR_OPTIONS = [
-  { id: "yellow", bg: "#fff9e6", title: "#f8d302", border: "#fff2b3" },
-  { id: "green", bg: "#e6f7e6", title: "#03c103", border: "#b3e6b3" },
-  { id: "blue", bg: "#e6f0ff", title: "#1a8bfc", border: "#b3d1ff" },
-  { id: "red", bg: "#ffe6e6", title: "#ff3a3a", border: "#ffb3b3" },
-  { id: "gray", bg: "#f0f0f0", title: "#8a8a8a", border: "#d9d9d9" },
-];
-
-const DEFAULT_TAGS = ["Work", "Personal", "Important"];
+import { useTheme } from "@/context/ThemeContext";
 
 export default function NewNote() {
   const { theme } = useTheme(); // light | dark
@@ -21,25 +12,55 @@ export default function NewNote() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [selectedTags, setSelectedTags] = useState([]);
-  const [selectedColor, setSelectedColor] = useState("yellow");
+  const [selectedColor, setSelectedColor] = useState("");
+  const [colors, setColors] = useState([]);
+  const [tags, setTags] = useState([]);
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loadingOptions, setLoadingOptions] = useState(true);
 
+  // Fetch رنگ‌ها و تگ‌ها از API
+  useEffect(() => {
+    const fetchOptions = async () => {
+      try {
+        const [colorRes, tagRes] = await Promise.all([
+          fetch("/api/colors"),
+          fetch("/api/tags"),
+        ]);
+
+        const colorData = await colorRes.json();
+        const tagData = await tagRes.json();
+
+        setColors(colorData);
+        setTags(tagData.map((t) => t.name));
+
+        // انتخاب پیش‌فرض اولین رنگ
+        setSelectedColor(colorData[0]?.id || "");
+      } catch (err) {
+        console.error(err);
+        toast.error("Failed to load color or tag options", { theme });
+      } finally {
+        setLoadingOptions(false);
+      }
+    };
+
+    fetchOptions();
+  }, [theme]);
+
+  // ولیدیشن ساده: حداقل 3 کاراکتر
   const validate = () => {
     const newErrors = {};
-    if (!title.trim()) newErrors.title = "Title is required";
-    if (!content.trim()) newErrors.content = "Content is required";
+    if (!title.trim() || title.trim().length < 3)
+      newErrors.title = "Title must be at least 3 characters";
+    if (!content.trim() || content.trim().length < 3)
+      newErrors.content = "Content must be at least 3 characters";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async () => {
     if (!validate()) {
-      toast.error("Invalid data", {
-        position: "top-right",
-        autoClose: 3000,
-        theme: theme,
-      });
+      toast.error("Please fix errors before submitting", { theme });
       return;
     }
 
@@ -58,24 +79,16 @@ export default function NewNote() {
 
       if (!res.ok) throw new Error();
 
-      toast.success("Note saved successfully!", {
-        position: "top-right",
-        autoClose: 3000,
-        theme: theme,
-      });
+      toast.success("Note saved successfully!", { theme });
 
-      // reset form
+      // Reset form
       setTitle("");
       setContent("");
       setSelectedTags([]);
-      setSelectedColor("yellow");
+      setSelectedColor(colors[0]?.id || "");
       setErrors({});
     } catch {
-      toast.error("Failed to save note.", {
-        position: "top-right",
-        autoClose: 3000,
-        theme: theme,
-      });
+      toast.error("Failed to save note.", { theme });
     } finally {
       setIsSubmitting(false);
     }
@@ -88,7 +101,9 @@ export default function NewNote() {
   };
 
   const activeColor =
-    COLOR_OPTIONS.find((c) => c.id === selectedColor) || COLOR_OPTIONS[0];
+    colors.find((c) => c.id === selectedColor) || { bg: "#fff", title: "#000", border: "#ccc" };
+
+  if (loadingOptions) return <p>Loading options...</p>;
 
   return (
     <div className={styles.wrapper}>
@@ -99,9 +114,7 @@ export default function NewNote() {
         <label className={styles.label}>
           Title
           <input
-            className={`${styles.input} ${
-              errors.title ? styles.inputError : ""
-            }`}
+            className={`${styles.input} ${errors.title ? styles.inputError : ""}`}
             placeholder="Enter note title..."
             value={title}
             onChange={(e) => setTitle(e.target.value)}
@@ -112,27 +125,21 @@ export default function NewNote() {
         <label className={styles.label}>
           Content
           <textarea
-            className={`${styles.textarea} ${
-              errors.content ? styles.inputError : ""
-            }`}
+            className={`${styles.textarea} ${errors.content ? styles.inputError : ""}`}
             placeholder="Write your note..."
             value={content}
             onChange={(e) => setContent(e.target.value)}
           />
-          {errors.content && (
-            <span className={styles.error}>{errors.content}</span>
-          )}
+          {errors.content && <span className={styles.error}>{errors.content}</span>}
         </label>
 
         <div className={styles.label}>
           Tags
           <div className={styles.tags}>
-            {DEFAULT_TAGS.map((tag) => (
+            {tags.map((tag) => (
               <span
                 key={tag}
-                className={`${styles.tag} ${
-                  selectedTags.includes(tag) ? styles.tagActive : ""
-                }`}
+                className={`${styles.tag} ${selectedTags.includes(tag) ? styles.tagActive : ""}`}
                 onClick={() => toggleTag(tag)}
               >
                 {tag}
@@ -144,12 +151,10 @@ export default function NewNote() {
         <div className={styles.label}>
           Color
           <div className={styles.colors}>
-            {COLOR_OPTIONS.map((c) => (
+            {colors.map((c) => (
               <span
                 key={c.id}
-                className={`${styles.colorSwatch} ${
-                  selectedColor === c.id ? styles.colorActive : ""
-                }`}
+                className={`${styles.colorSwatch} ${selectedColor === c.id ? styles.colorActive : ""}`}
                 style={{ backgroundColor: c.title }}
                 onClick={() => setSelectedColor(c.id)}
               />
@@ -158,11 +163,7 @@ export default function NewNote() {
         </div>
 
         <div className={styles.actions}>
-          <button
-            className={styles.btnPrimary}
-            onClick={handleSubmit}
-            disabled={isSubmitting}
-          >
+          <button className={styles.btnPrimary} onClick={handleSubmit} disabled={isSubmitting}>
             {isSubmitting ? "Saving..." : "Save Note"}
           </button>
         </div>
@@ -177,10 +178,7 @@ export default function NewNote() {
             borderColor: activeColor.border,
           }}
         >
-          <div
-            className={styles.previewTitle}
-            style={{ color: activeColor.title }}
-          >
+          <div className={styles.previewTitle} style={{ color: activeColor.title }}>
             {title || "Note title..."}
           </div>
           <div className={styles.previewTags}>
@@ -199,8 +197,6 @@ export default function NewNote() {
           </div>
         </div>
       </aside>
-
-      <ToastContainer />
     </div>
   );
 }
