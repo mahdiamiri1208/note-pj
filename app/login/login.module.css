@@ -10,60 +10,94 @@
   width: 100%;
   max-width: 420px;
   padding: 36px;
-  border-radius: 16px;
-  background: var(--MainContent);
+  border-radius: 18px;
+  background: var(--card-bg);
   border: 1px solid var(--border);
-  box-shadow: 0 12px 30px var(--shadow);
+  box-shadow: 0 14px 40px var(--shadow);
+  transition: background-color 240ms ease, border-color 240ms ease,
+    box-shadow 240ms ease;
 }
 
+/* ---------------- Title ---------------- */
 .title {
   font-size: 1.8rem;
   font-weight: 700;
   color: var(--text);
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }
 
 .subtitle {
   color: var(--text-muted);
-  margin-bottom: 24px;
+  margin-bottom: 26px;
+  font-size: 0.95rem;
 }
 
+/* ---------------- Form ---------------- */
 .form {
   display: flex;
   flex-direction: column;
   gap: 14px;
 }
 
+/* ---------------- Input ---------------- */
 .input {
-  background-color: var(--bg);
-  border: 1px solid var(--border);
+  background-color: var(--input-bg);
+  border: 1px solid var(--input-border);
   padding: 12px 14px;
-  border-radius: 10px;
+  border-radius: 12px;
   color: var(--text);
   outline: none;
+  font-size: 0.95rem;
+  transition: border-color 200ms ease, background-color 200ms ease,
+    box-shadow 200ms ease;
+}
+
+.input::placeholder {
+  color: var(--text-muted);
 }
 
 .input:focus {
-  background: var(--search-input-bg-focus);
-  border-color: var(--border-hover);
+  background-color: var(--input-bg-focus);
+  border-color: var(--input-border-focus);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent);
 }
 
+/* ---------------- Primary Button ---------------- */
 .primaryBtn {
-  margin-top: 6px;
+  margin-top: 8px;
   padding: 12px;
-  border-radius: 12px;
-  background: var(--primary);
-  color: #000;
+  border-radius: 14px;
+  background-color: var(--btn-bg);
+  color: var(--btn-text);
   font-weight: 600;
+  font-size: 0.95rem;
   border: none;
   cursor: pointer;
-  transition: 0.25s;
+  transition: background-color 200ms ease, transform 120ms ease,
+    box-shadow 200ms ease;
 }
 
 .primaryBtn:hover {
-  background: var(--primary-hover);
+  background-color: var(--btn-bg-hover);
 }
 
+.primaryBtn:active {
+  transform: translateY(1px);
+}
+
+.primaryBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ---------------- Error ---------------- */
+.error {
+  margin-top: 4px;
+  font-size: 0.85rem;
+  color: var(--error-text);
+}
+
+/* ---------------- Forgot link ---------------- */
 .forgot {
   display: block;
   text-align: right;
@@ -71,23 +105,28 @@
   font-size: 0.85rem;
   color: var(--text-muted);
   text-decoration: none;
+  transition: color 160ms ease;
 }
 
 .forgot:hover {
+  color: var(--text);
   text-decoration: underline;
 }
 
+/* ---------------- Divider ---------------- */
 .divider {
-  margin: 22px 0;
+  margin: 24px 0;
   text-align: center;
   position: relative;
 }
 
 .divider span {
-  background: var(--MainContent);
-  padding: 0 10px;
+  background: var(--card-bg);
+  padding: 0 12px;
   color: var(--text-muted);
-  font-size: 0.8rem;
+  font-size: 0.75rem;
+  z-index: 1;
+  position: relative;
 }
 
 .divider::before {
@@ -96,36 +135,17 @@
   inset: 50% 0 auto 0;
   height: 1px;
   background: var(--border);
-  z-index: -1;
 }
 
-.signupBox {
-  margin-top: 18px;
-  display: flex;
-  justify-content: center;
-  gap: 6px;
-  font-size: 0.9rem;
-  color: var(--text-muted);
-}
-
-.signupLink {
-  color: var(--primary);
-  font-weight: 600;
-  text-decoration: none;
-  transition: color 0.2s ease;
-}
-
-.signupLink:hover {
-  color: var(--text);
-  text-decoration: underline;
-}
+/* ---------------- OTP Timer ---------------- */
 .timer {
-  margin-top: 8px;
+  margin-top: 6px;
   font-size: 0.85rem;
   color: var(--text-muted);
   text-align: center;
 }
 
+/* ---------------- Resend Button ---------------- */
 .resendBtn {
   margin-top: 10px;
   background: transparent;
@@ -133,9 +153,26 @@
   color: var(--primary);
   font-size: 0.85rem;
   cursor: pointer;
+  transition: color 160ms ease;
+}
+
+.resendBtn:hover {
+  color: var(--primary-hover);
 }
 
 .resendBtn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+.iconDarkMode {
+  color: var(--theme-toggle);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+}
+.header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
 }

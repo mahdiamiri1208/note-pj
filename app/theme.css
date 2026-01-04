@@ -2,7 +2,7 @@
   --bg: #f5f5f5;
   --surface: #ffffff;
   --link-hover: #beceff75;
-  -e-MainContent: #ffffff;
+  --MainContent: #ffffff;
   --text: #1f1f1f;
   --text-muted: #6b6b6b;
   --border: #d6d6d6;
@@ -14,6 +14,27 @@
   --tags: rgba(0, 0, 0, 0.08);
   --note-content: #ffffff;
   --theme-toggle: #f0c416d4;
+  /* --- Primary / Action --- */
+  --primary: #4f7cff;
+  --primary-hover: #3f6ae6;
+  --primary-text: #ffffff;
+
+  /* --- Buttons --- */
+  --btn-bg: var(--primary);
+  --btn-bg-hover: var(--primary-hover);
+  --btn-text: var(--primary-text);
+
+  /* --- Inputs --- */
+  --input-bg: var(--sarch-input-bg);
+  --input-bg-focus: var(--search-input-bg-focus);
+  --input-border: var(--border);
+  --input-border-focus: var(--primary);
+
+  /* --- Error --- */
+  --error-text: #e53935;
+
+  /* --- Card --- */
+  --card-bg: var(--MainContent);
 }
 
 [data-theme="dark"] {
@@ -31,16 +52,33 @@
   --note-content: rgba(20, 24, 31, 0.89);
   --activeIcon: #d7d7d7e2;
   --theme-toggle: #e8ebf0;
+  --primary: #7aa2ff;
+  --primary-hover: #5f87e6;
+  --primary-text: #0b1020;
 
+  --btn-bg: var(--primary);
+  --btn-bg-hover: var(--primary-hover);
+  --btn-text: var(--primary-text);
+
+  --input-bg: #14181f;
+  --input-bg-focus: #252c3b;
+  --input-border: rgba(255, 255, 255, 0.12);
+  --input-border-focus: var(--primary);
+
+  --error-text: #ff6b6b;
+
+  --card-bg: #1b2028;
 }
 
 /* ------------------------
   Smooth theme transition
    - apply to main surfaces so change نرم و دلپذیر باشه
 -------------------------*/
-:root, [data-theme="dark"] {
+:root,
+[data-theme="dark"] {
   /* transition globally: متن/بک‌گراند/کادر/سایه */
-  transition: background-color 240ms ease, color 240ms ease, border-color 240ms ease, box-shadow 240ms ease;
+  transition: background-color 240ms ease, color 240ms ease,
+    border-color 240ms ease, box-shadow 240ms ease;
 }
 
 /* راحت‌تر: هدف‌گیری المنت‌هایی که باید انیمیت شوند */
@@ -54,7 +92,8 @@ header,
 .noteContent,
 .MainContent-module__kZ0hva__scrollArea, /* اگر کلاس واقعی هست */
 .notes-module__Wy3-Pq__toolbar {
-  transition: background-color 240ms ease, color 240ms ease, border-color 240ms ease, box-shadow 240ms ease, transform 240ms ease;
+  transition: background-color 240ms ease, color 240ms ease,
+    border-color 240ms ease, box-shadow 240ms ease, transform 240ms ease;
 }
 
 /* اگر از backdrop-filter / glass use، انیمیت opacity بجای خود فیلتر برای smoothness */
@@ -69,16 +108,16 @@ header,
 
 /* Default (light) values: */
 :root {
-  --scrollbar-bg: #efefef;           /* track */
-  --scrollbar-thumb: #d1d1d1;        /* thumb */
+  --scrollbar-bg: #efefef; /* track */
+  --scrollbar-thumb: #d1d1d1; /* thumb */
   --scrollbar-thumb-hover: #bfbfbf;
   --scrollbar-width: 10px;
 }
 
 /* Dark overrides */
 [data-theme="dark"] {
-  --scrollbar-bg: #151821;           /* تِرَک تیره‌تر */
-  --scrollbar-thumb: #2b3440;        /* نوک کشیده‌تر (thumb) */
+  --scrollbar-bg: #151821; /* تِرَک تیره‌تر */
+  --scrollbar-thumb: #2b3440; /* نوک کشیده‌تر (thumb) */
   --scrollbar-thumb-hover: #3b4652;
   --scrollbar-width: 10px;
 }
@@ -126,7 +165,8 @@ header,
 /* ensure MUI FAB/SpeedDial که سفید بود، با تم هماهنگ شود */
 .MuiFab-root,
 .MuiSpeedDialAction-fab {
-  transition: background-color 180ms ease, color 180ms ease, box-shadow 180ms ease;
+  transition: background-color 180ms ease, color 180ms ease,
+    box-shadow 180ms ease;
   background: transparent !important; /* اگر می‌خوای شفاف باشه */
   box-shadow: none !important;
 }
@@ -174,7 +214,9 @@ header,
 
 /* حالت expand — دایره بزرگ می‌شود و ناحیهٔ بیشتری را تینت می‌کند */
 .theme-transition-overlay.active {
-  clip-path: circle(150% at var(--x) var(--y)); /* بزرگتر از کانتینر تا کامل پوشش دهد */
+  clip-path: circle(
+    150% at var(--x) var(--y)
+  ); /* بزرگتر از کانتینر تا کامل پوشش دهد */
 }
 
 /* (اختیاری) وقتی می‌خواهی حالت ملایم‌تری داشته باشی */
