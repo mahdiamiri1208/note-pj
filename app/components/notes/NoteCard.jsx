@@ -1,4 +1,3 @@
-// components/notes/NoteCard.jsx
 "use client";
 
 import React, { useState } from "react";
@@ -92,10 +91,13 @@ export default function NoteCard({
       }}
     >
       <div className={styles.title} style={{ color: colors.title }}>
-        <span>{title}</span>
+        {/* titleText: تا 2 خط می‌پیچد و در انتها ... می‌گذارد */}
+        <span className={styles.titleText} title={title}>
+          {title}
+        </span>
 
         <SpeedDial
-          ariaLabel="note-actions" // ضروری برای دسترسی و امن بودن
+          ariaLabel="note-actions"
           icon={<MoreHorizIcon sx={{ color: colors.title }} />}
           direction="left"
           open={open}
@@ -104,7 +106,7 @@ export default function NoteCard({
             "aria-label": "note-actions",
             sx: { background: "transparent !important", boxShadow: "none", width: 32, height: 32 },
           }}
-          sx={{ position: "absolute", top: 7, right: 7, "& .MuiSpeedDial-actions": { gap: "2px" } }}
+          sx={{ position: "absolute", top: -5, right: 2, "& .MuiSpeedDial-actions": { gap: "2px" } }}
         >
           {actions.map((action) => (
             <SpeedDialAction

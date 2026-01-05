@@ -8,11 +8,19 @@ import WindowIcon from "@mui/icons-material/Window";
 import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import AddIcon from "@mui/icons-material/Add";
-
 import NoteCard from "../../components/notes/NoteCard";
+import Pagination from "@mui/material/Pagination";
+import Stack from "@mui/material/Stack";
 
 /* fallback (در صورتی که API مشکل داشت) */
-const FALLBACK_TAGS = ["Work", "Personal", "Important", "Office", "Home", "Health"];
+const FALLBACK_TAGS = [
+  "Work",
+  "Personal",
+  "Important",
+  "Office",
+  "Home",
+  "Health",
+];
 const FALLBACK_COLORS = ["yellow", "green", "blue", "red", "gray"];
 
 export default function NotesPage() {
@@ -31,13 +39,14 @@ export default function NotesPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const filterRef = useRef(null);
+  const abortRef = useRef();
 
-  /* 🔍 سرچ */
+  /* 🔍 params */
   const q = searchParams.get("q") || "";
-
-  /* 🎨 فیلتر چندانتخابی از URL */
-  const colors = searchParams.get("colors")?.split(",") || [];
-  const tags = searchParams.get("tags")?.split(",") || [];
+  const colors = searchParams.get("colors")?.split(",").filter(Boolean) || [];
+  const tags = searchParams.get("tags")?.split(",").filter(Boolean) || [];
+  const page = Math.max(Number(searchParams.get("page") || 1), 1);
+  const limit = Math.min(Number(searchParams.get("limit") || 20), 100);
 
   /* بستن منو با کلیک بیرون */
   useEffect(() => {
@@ -50,8 +59,12 @@ export default function NotesPage() {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  /* fetch notes (همانند قبل) */
+  /* fetch notes (with AbortController + pagination) */
   useEffect(() => {
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+
     const fetchNotes = async () => {
       setLoading(true);
       setError("");
@@ -60,13 +73,20 @@ export default function NotesPage() {
       if (q) params.append("q", q);
       if (colors.length) params.append("colors", colors.join(","));
       if (tags.length) params.append("tags", tags.join(","));
+      params.set("page", String(page));
+      params.set("limit", String(limit));
 
       try {
-        const res = await fetch(`/api/notes?${params.toString()}`);
+        const res = await fetch(`/api/notes?${params.toString()}`, {
+          signal: controller.signal,
+        });
         if (!res.ok) throw new Error("Failed to fetch notes");
         const data = await res.json();
-        setNotes(data);
+        setNotes(Array.isArray(data.data) ? data.data : data); // back-compat if needed
+        // If API returns meta, we may want to use it (total) — keep it in state below if needed
+        setTotal(data.total ?? (Array.isArray(data) ? data.length : 0));
       } catch (e) {
+        if (e.name === "AbortError") return;
         console.error(e);
         setError("Failed to fetch notes");
       } finally {
@@ -75,7 +95,10 @@ export default function NotesPage() {
     };
 
     fetchNotes();
-  }, [q, colors.join(","), tags.join(",")]);
+
+    return () => controller.abort();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [q, colors.join(","), tags.join(","), page, limit]);
 
   /* fetch available colors & tags from API once */
   useEffect(() => {
@@ -84,7 +107,10 @@ export default function NotesPage() {
       setOptionsLoading(true);
       setOptionsError("");
       try {
-        const [cRes, tRes] = await Promise.all([fetch("/api/colors"), fetch("/api/tags")]);
+        const [cRes, tRes] = await Promise.all([
+          fetch("/api/colors"),
+          fetch("/api/tags"),
+        ]);
         if (!cRes.ok || !tRes.ok) throw new Error("Failed to load options");
 
         const cData = await cRes.json();
@@ -92,10 +118,16 @@ export default function NotesPage() {
 
         if (!mounted) return;
         // colors: expect array of { id, bg, title, border }
-        setAvailableColors(Array.isArray(cData) && cData.length ? cData : FALLBACK_COLORS.map((id) => ({ id })));
+        setAvailableColors(
+          Array.isArray(cData) && cData.length
+            ? cData
+            : FALLBACK_COLORS.map((id) => ({ id }))
+        );
         // tags: accept array of objects {name} or array of strings
         const parsedTags = Array.isArray(tData)
-          ? tData.map((t) => (typeof t === "string" ? t : t?.name)).filter(Boolean)
+          ? tData
+              .map((t) => (typeof t === "string" ? t : t?.name))
+              .filter(Boolean)
           : [];
         setAvailableTags(parsedTags.length ? parsedTags : FALLBACK_TAGS);
       } catch (err) {
@@ -130,6 +162,9 @@ export default function NotesPage() {
     if (next.length) params.set(key, next.join(","));
     else params.delete(key);
 
+    // reset to page 1 when filters change
+    params.set("page", "1");
+
     router.push(`/notes?${params.toString()}`);
   };
 
@@ -142,6 +177,17 @@ export default function NotesPage() {
   // حذف از state وقتی NoteCard حذف موفق را اعلام می‌کند (بدون رفرش)
   const handleDeleteFromList = (id) => {
     setNotes((prev) => prev.filter((n) => n._id !== id));
+  };
+
+  // pagination: read total from last fetch — keep in state
+  const [total, setTotal] = useState(0);
+  const pageCount = Math.max(1, Math.ceil(total / limit));
+
+  const handlePageChange = (event, value) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("page", String(value));
+    router.push(`/notes?${params.toString()}`);
+    
   };
 
   return (
@@ -204,7 +250,9 @@ export default function NotesPage() {
                                 className={styles.colorDot}
                                 data-color={id}
                                 title={id}
-                                style={{ backgroundColor: c.title || undefined }}
+                                style={{
+                                  backgroundColor: c.title || undefined,
+                                }}
                               />
                               {id}
                             </label>
@@ -264,6 +312,21 @@ export default function NotesPage() {
             onDelete={handleDeleteFromList}
           />
         ))}
+      </div>
+
+      {/* Pagination footer */}
+      <div style={{ marginTop: 18, display: "flex", justifyContent: "center" }}>
+        
+        <Stack spacing={2}>
+          <Pagination
+            count={pageCount}
+            page={page}
+            color="primary"
+            onChange={handlePageChange}
+            showFirstButton
+            showLastButton
+          />
+        </Stack>
       </div>
     </div>
   );

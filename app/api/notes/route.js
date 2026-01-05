@@ -2,7 +2,10 @@ import { connectDB } from "@/lib/mongodb";
 import Note from "@/models/Note";
 import { NextResponse } from "next/server";
 
-/* CREATE NOTE */
+function escapeRegExp(string = "") {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 export async function POST(req) {
   try {
     await connectDB();
@@ -27,37 +30,51 @@ export async function POST(req) {
   }
 }
 
-/* GET NOTES (with search & filters) */
+/* GET NOTES (with search, filters, pagination) */
 export async function GET(req) {
   try {
     await connectDB();
 
     const { searchParams } = new URL(req.url);
 
-    const q = searchParams.get("q");
-    const colors = searchParams.get("colors")?.split(",");
-    const tags = searchParams.get("tags")?.split(",");
+    // Pagination params
+    const page = Math.max(Number(searchParams.get("page") || 1), 1);
+    const limitRaw = Number(searchParams.get("limit") || 20);
+    const limit = Math.min(Math.max(isNaN(limitRaw) ? 20 : limitRaw, 1), 100);
+
+    const q = searchParams.get("q") || "";
+    const colors = searchParams.get("colors")?.split(",").filter(Boolean) || [];
+    const tags = searchParams.get("tags")?.split(",").filter(Boolean) || [];
 
     const filter = {};
 
     if (q) {
+      const regex = new RegExp(q, "i");
+
       filter.$or = [
-        { title: { $regex: q, $options: "i" } },
-        { content: { $regex: q, $options: "i" } },
+        { title: regex },
+        { content: regex },
+        { tags: { $elemMatch: { $regex: regex } } },
       ];
     }
 
-    if (colors?.length) {
+    if (colors.length) {
       filter.color = { $in: colors };
     }
 
-    if (tags?.length) {
+    if (tags.length) {
       filter.tags = { $in: tags };
     }
 
-    const notes = await Note.find(filter).sort({ createdAt: -1 });
+    const skip = (page - 1) * limit;
 
-    return NextResponse.json(notes, { status: 200 });
+    // parallelize queries: get data and total count
+    const [data, total] = await Promise.all([
+      Note.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
+      Note.countDocuments(filter),
+    ]);
+
+    return NextResponse.json({ data, page, limit, total }, { status: 200 });
   } catch (error) {
     console.error(error);
     return NextResponse.json(

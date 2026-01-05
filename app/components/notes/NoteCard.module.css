@@ -16,8 +16,25 @@
   font-weight: bold;
   font-size: 20px;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  align-items: flex-start; /* allow title to wrap into lines */
+  gap: 8px;
+  position: relative;
+  /* padding-right to ensure titleText doesn't go under the absolute SpeedDial */
+  padding-right: 44px;
+}
+
+/* Title: allow up to 2 lines, then ellipsis */
+.titleText {
+  flex: 1 1 auto; /* take available space */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2; /* number of lines to show before ... */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.18;
+  word-break: break-word;
+  max-height: calc(1.18em * 2); /* keep height consistent */
+  /* For better RTL support, if your content is RTL use direction: rtl; */
 }
 
 /* کانتینر تگ‌ها و محتوا */
@@ -56,6 +73,7 @@
   height: 100%;
 }
 
+/* Content: multi-line clamp with ellipsis (3 lines) */
 .contentText {
   display: -webkit-box;
   -webkit-box-orient: vertical;
@@ -63,5 +81,20 @@
   overflow: hidden;
   text-overflow: ellipsis;
   line-height: 1.3;
-  max-height: calc(1.3em * 3); 
+  max-height: calc(1.3em * 3);
+}
+
+/* optional hover elevate */
+.card:hover {
+  transform: translateY(-4px);
+}
+
+/* small responsive tweak */
+@media (max-width: 480px) {
+  .titleText {
+    -webkit-line-clamp: 2;
+  }
+  .card {
+    padding: 8px;
+  }
 }

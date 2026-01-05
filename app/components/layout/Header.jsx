@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
 import styles from "./Header.module.css";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
@@ -15,15 +15,28 @@ import { useTheme } from "@/context/ThemeContext";
 export default function Header() {
   const pathname = usePathname();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [profileOpen, setProfileOpen] = useState(false);
   const profileRef = useRef(null);
   const { theme, toggleTheme } = useTheme();
   const [search, setSearch] = useState("");
 
+  useEffect(() => {
+    // sync search input with q param on mount / when URL changes
+    setSearch(searchParams.get("q") || "");
+  }, [searchParams]);
+
   const handleSearch = (e) => {
-    if (e.key === "Enter") {
-      router.push(`/notes?q=${encodeURIComponent(search)}`);
-    }
+    if (e.key !== "Enter") return;
+
+    const params = new URLSearchParams(searchParams.toString());
+    if (search) params.set("q", search);
+    else params.delete("q");
+
+    // reset to first page when searching
+    params.set("page", "1");
+
+    router.push(`/notes?${params.toString()}`);
   };
 
   const segments = (pathname || "/").split("/").filter(Boolean);
