@@ -187,7 +187,6 @@ export default function NotesPage() {
     const params = new URLSearchParams(searchParams.toString());
     params.set("page", String(value));
     router.push(`/notes?${params.toString()}`);
-    
   };
 
   return (
@@ -316,7 +315,6 @@ export default function NotesPage() {
 
       {/* Pagination footer */}
       <div style={{ marginTop: 18, display: "flex", justifyContent: "center" }}>
-        
         <Stack spacing={2}>
           <Pagination
             count={pageCount}
@@ -325,6 +323,24 @@ export default function NotesPage() {
             onChange={handlePageChange}
             showFirstButton
             showLastButton
+            sx={(theme) => ({
+              "& .MuiPaginationItem-root": {
+                color: theme.palette.mode === "dark" ? "#fff" : "inherit",
+              },
+              "& .Mui-selected": {
+                color: theme.palette.mode === "dark" ? "#000" : "#fff",
+                backgroundColor:
+                  theme.palette.mode === "dark"
+                    ? "#fff"
+                    : theme.palette.primary.main,
+              },
+              "& .MuiPaginationItem-root:hover": {
+                backgroundColor:
+                  theme.palette.mode === "dark"
+                    ? "rgba(255,255,255,0.2)"
+                    : "rgba(0,0,0,0.04)",
+              },
+            })}
           />
         </Stack>
       </div>
