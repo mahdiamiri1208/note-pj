@@ -10,10 +10,6 @@ export default function SocialLogin() {
       <button className={styles.socialBtn} onClick={() => signIn("google")}>
         <GoogleIcon /> Continue with Google
       </button>
-
-      <button className={styles.socialBtn} onClick={() => signIn("github")}>
-        <GitHubIcon /> Continue with GitHub
-      </button>
     </div>
   );
 }

@@ -1,8 +1,6 @@
 // app/layout.jsx
 import { Geist, Geist_Mono } from "next/font/google";
-import { ThemeProvider } from "@/context/ThemeContext";
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { Providers } from "./providers";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./globals.css";
 import "./theme.css";
@@ -25,17 +23,7 @@ export default function RootLayout({ children }) {
         suppressHydrationWarning
         className={`${geistSans.variable} ${geistMono.variable}`}
       >
-        <ThemeProvider>{children}</ThemeProvider>
-        <ToastContainer
-          position="top-right"
-          autoClose={3000}
-          hideProgressBar={false}
-          newestOnTop
-          closeOnClick
-          pauseOnHover
-          draggable
-          theme="colored"
-        />
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

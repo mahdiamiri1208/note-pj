@@ -5,7 +5,10 @@ import GitHubProvider from "next-auth/providers/github";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { connectDB } from "@/lib/mongodb";
 import Otp from "@/models/Otp";
+import User from "@/models/User";
 import bcrypt from "bcryptjs";
+
+const TEN_MINUTES = 10 * 60; // seconds
 
 export const authOptions = {
   providers: [
@@ -17,43 +20,85 @@ export const authOptions = {
       clientId: process.env.GITHUB_CLIENT_ID,
       clientSecret: process.env.GITHUB_CLIENT_SECRET,
     }),
+
     CredentialsProvider({
-      id: "credentials",
+      id: "password",
+      name: "Password",
+      credentials: {
+        identifier: { label: "Username or Email", type: "text" },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials) {
+        try {
+          if (!credentials?.identifier || !credentials?.password) {
+            return null;
+          }
+
+          await connectDB();
+          const identifier = credentials.identifier.trim().toLowerCase();
+
+          const user = await User.findOne({
+            $or: [{ username: identifier }, { email: identifier }],
+          });
+
+          if (!user) return null;
+
+          const isValid = await bcrypt.compare(credentials.password, user.password);
+          if (!isValid) return null;
+
+          return {
+            id: user._id.toString(),
+            email: user.email,
+            username: user.username,
+            name: `${user.firstName} ${user.lastName}`.trim(),
+          };
+        } catch (err) {
+          console.error("Password authorize error:", err);
+          return null;
+        }
+      },
+    }),
+
+    CredentialsProvider({
+      id: "otp",
       name: "OTP",
       credentials: {
         email: { label: "Email", type: "email" },
         otp: { label: "OTP", type: "text" },
       },
       async authorize(credentials) {
-        // اعتبارسنجی ساده ورودی
-        if (!credentials?.email || !credentials?.otp) return null;
-
         try {
-          await connectDB();
-
-          // پیدا کردن آخرین OTP صادر شده برای ایمیل
-          const record = await Otp.findOne({ email: credentials.email }).sort({ createdAt: -1 });
-          if (!record) return null;
-
-          // اگر منقضی شده --> حذف و رد کن
-          if (Date.now() > record.expiresAt.getTime()) {
-            await Otp.deleteMany({ email: credentials.email });
+          if (!credentials?.email || !credentials?.otp) {
             return null;
           }
 
-          // بررسی تطابق (record.code حاوی هش است)
+          await connectDB();
+          const email = credentials.email.trim().toLowerCase();
+
+          const record = await Otp.findOne({ email }).sort({ createdAt: -1 });
+          if (!record) return null;
+
+          if (Date.now() > record.expiresAt.getTime()) {
+            await Otp.deleteMany({ email });
+            return null;
+          }
+
           const match = await bcrypt.compare(credentials.otp, record.code);
           if (!match) return null;
 
-          // OTP مصرف شده -> حذف همه رکوردهای قدیمی آن ایمیل
-          await Otp.deleteMany({ email: credentials.email });
+          await Otp.deleteMany({ email });
 
-          // اینجا می‌توانی کاربر واقعی از DB بارگذاری کنی؛ برای سادگی:
-          const user = { id: credentials.email, email: credentials.email };
+          const user = await User.findOne({ email });
+          if (!user) return null;
 
-          return user;
+          return {
+            id: user._id.toString(),
+            email: user.email,
+            username: user.username,
+            name: `${user.firstName} ${user.lastName}`.trim(),
+          };
         } catch (err) {
-          console.error("Credentials authorize error:", err);
+          console.error("OTP authorize error:", err);
           return null;
         }
       },
@@ -61,37 +106,60 @@ export const authOptions = {
   ],
 
   secret: process.env.NEXTAUTH_SECRET,
-  session: { strategy: "jwt" },
+
+  // ===== Session + JWT configuration =====
+  session: {
+    strategy: "jwt",
+    maxAge: TEN_MINUTES, // session valid for 10 minutes
+    updateAge: 0,        // don't auto-refresh session
+  },
+
+  jwt: {
+    maxAge: TEN_MINUTES,
+  },
+
   pages: {
     signIn: "/login",
   },
 
   callbacks: {
-    async jwt({ token, user, account }) {
-      // وقتی از provider وارد می‌شود، اطلاعاتی اضافه کن
-      if (account && user) {
-        token.accessToken = account.access_token || token.accessToken;
-      }
+    // jwt callback runs on sign-in and subsequent calls
+    async jwt({ token, user }) {
+      // On initial sign-in, set token claims
       if (user) {
-        token.user = user;
+        token.id = user.id;
+        token.email = user.email;
+        token.username = user.username;
+        token.name = user.name;
+
+        // set explicit exp (seconds since epoch)
+        token.exp = Math.floor(Date.now() / 1000) + TEN_MINUTES;
       }
+      // otherwise, preserve existing token.exp (do not refresh here)
       return token;
     },
 
+    // session callback exposes safe fields to client
     async session({ session, token }) {
-      session.user = token.user || session.user;
-      session.accessToken = token.accessToken;
+      if (!session.user) session.user = {};
+      session.user.id = token.id;
+      session.user.email = token.email;
+      session.user.username = token.username;
+      session.user.name = token.name;
+
+      // expose expiresAt as ms (client-friendly)
+      if (token?.exp) {
+        session.expiresAt = Number(token.exp) * 1000;
+        session.expires = new Date(Number(token.exp) * 1000).toISOString();
+      }
+
       return session;
     },
 
-    async redirect({ url, baseUrl }) {
-      // اگر redirect داخلی است، اجازه بده؛ در غیر اینصورت به /notes برو
-      if (url && url.startsWith(baseUrl)) return url;
+    async redirect({ baseUrl }) {
       return `${baseUrl}/notes`;
     },
   },
-
-  debug: process.env.NODE_ENV !== "production",
 };
 
 const handler = NextAuth(authOptions);
