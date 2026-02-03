@@ -211,7 +211,7 @@ export default function LoginPage() {
 
       showInfoToast("Sending verification code...");
 
-      const res = await fetch("/api/auth/send-otp", {
+      const res = await fetch("/api/send-otp-login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

@@ -1,4 +1,4 @@
-// app/api/auth/send-otp/route.js
+// app/api/auth/send-otp-login/route.js
 import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
 import { connectDB } from "@/lib/mongodb";
@@ -31,7 +31,9 @@ async function verifyRecaptcha(token) {
   try {
     const res = await fetch("https://www.google.com/recaptcha/api/siteverify", {
       method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
+      },
       body: `secret=${encodeURIComponent(RECAPTCHA_SECRET)}&response=${encodeURIComponent(token)}`,
     });
     const data = await res.json();
@@ -44,28 +46,43 @@ async function verifyRecaptcha(token) {
 
 async function sendEmail(to, code) {
   const transporter = nodemailer.createTransport({
+    // اگر از جیمیل استفاده می‌کنی، host را smtp.gmail.com بگذار
     host: SMTP_HOST,
-    port: Number(SMTP_PORT || 587),
-    secure: false,
+    port: 465, // تغییر از 587 به 465
+    secure: true, // برای پورت 465 حتماً باید true باشد
     auth: {
       user: SMTP_USER,
-      pass: SMTP_PASS,
+      pass: SMTP_PASS, // حتماً باید App Password باشد
+    },
+    // این بخش کمک می‌کند اگر سرور سخت‌گیری کرد، اتصال برقرار شود
+    tls: {
+      rejectUnauthorized: false,
     },
   });
 
-  await transporter.sendMail({
-    from: EMAIL_FROM,
-    to,
-    subject: "Your verification code",
-    html: `
-      <div style="font-family: Arial, sans-serif; line-height:1.4">
-        <h3>Notebook App — Verification Code</h3>
-        <p>Your OTP code is:</p>
-        <h2 style="letter-spacing: 4px">${code}</h2>
-        <p>It expires in ${Math.floor(OTP_TTL / 60)} minutes.</p>
-      </div>
-    `,
-  });
+  try {
+    await transporter.sendMail({
+      from: EMAIL_FROM,
+      to,
+      subject: "Your verification code",
+      html: `
+        <div style="font-family: Arial, sans-serif; line-height:1.4; color: #333;">
+          <h3 style="color: #007bff;">Notebook App — Verification Code</h3>
+          <p>Your OTP code is:</p>
+          <h2 style="letter-spacing: 4px; background: #f4f4f4; padding: 10px; display: inline-block;">${code}</h2>
+          <p>It expires in ${Math.floor(OTP_TTL / 60)} minutes.</p>
+          <footer style="font-size: 12px; color: #888; margin-top: 20px;">
+            If you didn't request this, please ignore this email.
+          </footer>
+        </div>
+      `,
+    });
+    console.log("Email sent successfully!");
+  } catch (error) {
+    // چاپ دقیق خطا برای اینکه در لاگ‌های کنسول ببینی مشکل چیست
+    console.error("Nodemailer detailed error:", error);
+    throw new Error("Failed to send email"); // پرتاب خطا برای مدیریت در بخش POST
+  }
 }
 
 export async function POST(req) {
@@ -77,7 +94,11 @@ export async function POST(req) {
 
     // Rate limit ساده: حداکثر 5 ارسال در 24 ساعت و حداقل 60s بین ارسال‌ها
     const now = Date.now();
-    const bucket = rateMap.get(email) || { lastSent: 0, count24h: 0, firstTs: now };
+    const bucket = rateMap.get(email) || {
+      lastSent: 0,
+      count24h: 0,
+      firstTs: now,
+    };
     // reset 24h window
     if (now - bucket.firstTs > 24 * 60 * 60 * 1000) {
       bucket.firstTs = now;
@@ -85,16 +106,25 @@ export async function POST(req) {
     }
 
     if (now - bucket.lastSent < 60 * 1000) {
-      return NextResponse.json({ message: "Too many requests. Wait a bit." }, { status: 429 });
+      return NextResponse.json(
+        { message: "Too many requests. Wait a bit." },
+        { status: 429 },
+      );
     }
     if (bucket.count24h >= 5) {
-      return NextResponse.json({ message: "Exceeded daily limit for OTP sends." }, { status: 429 });
+      return NextResponse.json(
+        { message: "Exceeded daily limit for OTP sends." },
+        { status: 429 },
+      );
     }
 
     // verify reCAPTCHA
     const rec = await verifyRecaptcha(recaptchaToken);
     if (!rec.success || (typeof rec.score === "number" && rec.score < 0.4)) {
-      return NextResponse.json({ message: "reCAPTCHA failed" }, { status: 403 });
+      return NextResponse.json(
+        { message: "reCAPTCHA failed" },
+        { status: 403 },
+      );
     }
 
     // تولید و هش کردن OTP

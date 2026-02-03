@@ -121,7 +121,7 @@ export default function RegisterPage() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const res = await fetch("/api/auth/session");
+        const res = await fetch("/api/session");
         const session = await res.json();
         if (session?.user) {
           toast.info("You're already logged in! Redirecting to dashboard...");

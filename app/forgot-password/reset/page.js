@@ -11,7 +11,6 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import { useTheme } from "@/context/ThemeContext";
 
-
 export default function ResetPasswordPage() {
   const search = useSearchParams();
   const router = useRouter();
@@ -46,7 +45,7 @@ export default function ResetPasswordPage() {
     setLoading(true);
 
     try {
-      const res = await fetch("/api/auth/reset-password", {
+      const res = await fetch("/api/reset-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -56,7 +55,15 @@ export default function ResetPasswordPage() {
         }),
       });
 
-      const data = await res.json();
+      const text = await res.text(); // ⬅️ مهم
+
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch {
+        console.error("NON-JSON RESPONSE:", text);
+        throw new Error("Invalid server response");
+      }
 
       if (!res.ok) {
         throw new Error(
@@ -67,7 +74,6 @@ export default function ResetPasswordPage() {
       toast.success(
         "Your password has been reset successfully. You can now log in.",
       );
-
       router.push("/login");
     } catch (err) {
       console.error(err);

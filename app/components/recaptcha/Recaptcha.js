@@ -56,7 +56,7 @@ export default function Recaptcha({ onVerify, action = 'register' }) {
       }
 
       // بررسی توکن با سرور
-      const response = await fetch('/api/auth/verify-recaptcha', {
+      const response = await fetch('/api/verify-recaptcha', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token, action }),
