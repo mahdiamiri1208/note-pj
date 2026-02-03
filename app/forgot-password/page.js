@@ -10,7 +10,6 @@ import { ThemeToggleButton } from "../components/theme-toggle-button";
 import styles from "./forgotPassword.module.css";
 import { useTheme } from "@/context/ThemeContext";
 
-
 export default function ForgotPasswordPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
@@ -82,8 +81,20 @@ export default function ForgotPasswordPage() {
           onChange={(e) => setEmail(e.target.value)}
         />
 
-        <button className={styles.btn} onClick={sendOtp} disabled={loading}>
-          {loading ? "Sending..." : "Send Code"}
+        <button
+          type="button"
+          className={`${styles.primaryBtn} ${loading ? styles.loading : ""}`}
+          onClick={sendOtp}
+          disabled={loading}
+        >
+          {loading ? (
+            <>
+              <span className={styles.spinner}></span>
+              Sending...
+            </>
+          ) : (
+            "Send Code"
+          )}
         </button>
       </div>
     </div>

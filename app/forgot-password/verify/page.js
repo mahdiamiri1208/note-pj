@@ -9,6 +9,18 @@ import LightModeIcon from "@mui/icons-material/LightMode";
 import { ThemeToggleButton } from "../../components/theme-toggle-button";
 import { useTheme } from "@/context/ThemeContext";
 
+/* ---------- Utils ---------- */
+const maskEmail = (email) => {
+  if (!email || !email.includes("@")) return email;
+
+  const [name, domain] = email.split("@");
+
+  if (name.length <= 2) {
+    return `${name[0]}*@${domain}`;
+  }
+
+  return `${name.slice(0, 2)}***@${domain}`;
+};
 
 export default function VerifyOtpPage() {
   const search = useSearchParams();
@@ -40,10 +52,21 @@ export default function VerifyOtpPage() {
       const res = await fetch("/api/verify-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, otp: code }),
+        body: JSON.stringify({
+          email,
+          otp: code,
+        }),
       });
 
-      const data = await res.json();
+      const text = await res.text();
+      let data;
+
+      try {
+        data = JSON.parse(text);
+      } catch {
+        console.error("NON-JSON RESPONSE:", text);
+        throw new Error("Invalid server response");
+      }
 
       if (!res.ok) {
         throw new Error(
@@ -53,7 +76,7 @@ export default function VerifyOtpPage() {
         );
       }
 
-      toast.success("Code verified successfully. Please set a new password.");
+      toast.success("Code verified successfully.");
 
       router.push(
         `/forgot-password/reset?email=${encodeURIComponent(
@@ -75,9 +98,11 @@ export default function VerifyOtpPage() {
           <div className={styles.texts}>
             <h1 className={styles.title}>Verify Code</h1>
             <p className={styles.subtitle}>
-              A 6-digit verification code has been sent to <b>{email}</b>
+              A 6-digit verification code has been sent to{" "}
+              <b>{maskEmail(email)}</b>
             </p>
           </div>
+
           <ThemeToggleButton
             start="top-right"
             onClick={toggleTheme}
@@ -86,6 +111,7 @@ export default function VerifyOtpPage() {
             {theme === "light" ? <DarkModeIcon /> : <LightModeIcon />}
           </ThemeToggleButton>
         </div>
+
         <input
           className={styles.input}
           type="text"
@@ -96,8 +122,23 @@ export default function VerifyOtpPage() {
           onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
         />
 
-        <button className={styles.btn} onClick={verify} disabled={loading}>
-          {loading ? "Verifying..." : "Verify Code"}
+        {/* -------- Primary Button -------- */}
+        <button
+          type="button"
+          className={`${styles.primaryBtn} ${
+            loading ? styles.loading : ""
+          }`}
+          onClick={verify}
+          disabled={loading || code.length !== 6}
+        >
+          {loading ? (
+            <>
+              <span className={styles.spinner}></span>
+              Verifying...
+            </>
+          ) : (
+            "Verify Code"
+          )}
         </button>
 
         <button

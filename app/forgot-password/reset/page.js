@@ -1,15 +1,28 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { toast } from "react-toastify";
-import styles from "../forgotPassword.module.css";
+import styles from "./resetPassword.module.css";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
 import LightModeIcon from "@mui/icons-material/LightMode";
 import { ThemeToggleButton } from "../../components/theme-toggle-button";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import { useTheme } from "@/context/ThemeContext";
+
+/* 🔹 ایمیل ماسک‌شده */
+const maskEmail = (email) => {
+  if (!email || !email.includes("@")) return email;
+
+  const [name, domain] = email.split("@");
+
+  if (name.length <= 2) {
+    return `${name[0]}*@${domain}`;
+  }
+
+  return `${name.slice(0, 2)}***@${domain}`;
+};
 
 export default function ResetPasswordPage() {
   const search = useSearchParams();
@@ -19,9 +32,14 @@ export default function ResetPasswordPage() {
   const email = search.get("email") || "";
   const resetToken = search.get("token") || "";
 
+  const maskedEmail = useMemo(() => maskEmail(email), [email]);
+
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -55,7 +73,7 @@ export default function ResetPasswordPage() {
         }),
       });
 
-      const text = await res.text(); // ⬅️ مهم
+      const text = await res.text();
 
       let data;
       try {
@@ -71,9 +89,7 @@ export default function ResetPasswordPage() {
         );
       }
 
-      toast.success(
-        "Your password has been reset successfully. You can now log in.",
-      );
+      toast.success("Password reset successfully. You can now log in.");
       router.push("/login");
     } catch (err) {
       console.error(err);
@@ -90,9 +106,10 @@ export default function ResetPasswordPage() {
           <div className={styles.texts}>
             <h1 className={styles.title}>Reset Password</h1>
             <p className={styles.subtitle}>
-              Create a new password for <b>{email}</b>
+              Create a new password for <b>{maskedEmail}</b>
             </p>
           </div>
+
           <ThemeToggleButton
             start="top-right"
             onClick={toggleTheme}
@@ -102,7 +119,7 @@ export default function ResetPasswordPage() {
           </ThemeToggleButton>
         </div>
 
-        {/* New password */}
+        {/* 🔐 New password */}
         <div className={styles.passwordWrapper}>
           <input
             type={showPassword ? "text" : "password"}
@@ -122,19 +139,40 @@ export default function ResetPasswordPage() {
           </button>
         </div>
 
-        {/* Confirm password */}
+        {/* 🔐 Confirm password */}
         <div className={styles.passwordWrapper}>
           <input
-            type={showPassword ? "text" : "password"}
+            type={showConfirmPassword ? "text" : "password"}
             className={`${styles.input} ${styles.passwordInput}`}
             placeholder="Confirm new password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
           />
+
+          <button
+            type="button"
+            className={styles.passwordToggle}
+            onClick={() => setShowConfirmPassword((v) => !v)}
+            aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+          >
+            {showConfirmPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+          </button>
         </div>
 
-        <button className={styles.btn} onClick={submit} disabled={loading}>
-          {loading ? "Resetting..." : "Reset Password"}
+        <button
+          type="button"
+          className={`${styles.primaryBtn} ${loading ? styles.loading : ""}`}
+          onClick={submit}
+          disabled={loading}
+        >
+          {loading ? (
+            <>
+              <span className={styles.spinner}></span>
+              Resetting...
+            </>
+          ) : (
+            "Reset Password"
+          )}
         </button>
       </div>
     </div>
