@@ -12,6 +12,8 @@ import LightModeIcon from "@mui/icons-material/LightMode";
 import { ThemeToggleButton } from "../components/theme-toggle-button";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import { useTheme } from "@/context/ThemeContext";
 
 const SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
@@ -46,6 +48,7 @@ export default function LoginPage() {
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [otp, setOtp] = useState("");
+  const [showPassword, setShowPassword] = useState(false); // MOVED INSIDE COMPONENT
 
   const [mode, setMode] = useState("password"); // فقط دو حالت: "password" یا "otp"
   const [step, setStep] = useState(1); // 1 = وارد کردن شناسه، 2 = وارد کردن کد
@@ -533,6 +536,8 @@ export default function LoginPage() {
           >
             <div className={styles.inputGroup}>
               <input
+                name="username"
+                autoComplete="username"
                 type="text"
                 placeholder="Username or email"
                 className={styles.input}
@@ -589,15 +594,30 @@ export default function LoginPage() {
             {/* نمایش رمز عبور فقط در حالت password */}
             {mode === "password" && (
               <div className={styles.inputGroup}>
-                <input
-                  type="password"
-                  placeholder="Password"
-                  className={styles.input}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  aria-label="Password"
-                  disabled={loading || isCheckingSession}
-                />
+                <div className={styles.passwordWrapper}>
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    name="password"
+                    placeholder="Password"
+                    className={`${styles.input} ${styles.passwordInput}`}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    aria-label="Password"
+                    disabled={loading || isCheckingSession}
+                  />
+
+                  <button
+                    type="button"
+                    className={styles.passwordToggle}
+                    onClick={() => setShowPassword((v) => !v)}
+                    aria-label={
+                      showPassword ? "Hide password" : "Show password"
+                    }
+                    disabled={loading || isCheckingSession}
+                  >
+                    {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                  </button>
+                </div>
               </div>
             )}
 

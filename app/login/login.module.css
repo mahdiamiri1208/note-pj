@@ -617,6 +617,38 @@
   margin-bottom: 1rem;
 }
 
+.passwordWrapper {
+  position: relative;
+}
+
+.passwordToggle {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 200ms ease;
+  border-radius: 0.375rem;
+  z-index: 2;
+}
+
+.passwordToggle:hover {
+  color: var(--text);
+  background: var(--link-hover);
+}
+
+.passwordToggle:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
 /* ---------------- Responsive ---------------- */
 @media (max-width: 480px) {
   .card {

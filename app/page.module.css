@@ -49,7 +49,7 @@
   font-weight: 800;
   margin-bottom: 6px;
   letter-spacing: -0.5px;
-  background: linear-gradient(90deg, #ffffff, #c7d2fe);
+  background: #4e4e4eff;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }

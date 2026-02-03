@@ -1,5 +1,6 @@
 // models/User.js
 import mongoose from 'mongoose';
+import bcrypt from 'bcryptjs';
 
 // regex for validation
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -54,20 +55,30 @@ const UserSchema = new mongoose.Schema({
     minlength: [8, 'Password must be at least 8 characters']
   }
 }, {
-  timestamps: true // فقط createdAt و updatedAt
+  timestamps: true // createdAt و updatedAt
 });
 
-// Index for quick search
+// Indexes
 UserSchema.index({ username: 1 });
 UserSchema.index({ email: 1 });
 UserSchema.index({ createdAt: -1 });
 
+// Hash password before save when modified
+UserSchema.pre('save', async function(next) {
+  try {
+    if (!this.isModified('password')) return next();
+    const saltRounds = 10;
+    this.password = await bcrypt.hash(this.password, saltRounds);
+    return next();
+  } catch (err) {
+    return next(err);
+  }
+});
+
 // Method for password comparison
 UserSchema.methods.comparePassword = async function(candidatePassword) {
-  const bcrypt = await import('bcryptjs');
-  return await bcrypt.compare(candidatePassword, this.password);
+  return bcrypt.compare(candidatePassword, this.password);
 };
 
 const User = mongoose.models.User || mongoose.model('User', UserSchema);
-
 export default User;

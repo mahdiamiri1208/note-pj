@@ -9,9 +9,7 @@ import Sidebar from "../components/layout/Sidebar";
 import MainContent from "../components/layout/MainContent";
 import styles from "./layout.module.css";
 
-// اگر toast داری استفاده کن، اگر نه می‌تونی حذفش کنی
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { toast } from "react-toastify";
 
 export default function ProtectedLayout({ children }) {
   const { data: session, status } = useSession();
@@ -27,7 +25,6 @@ export default function ProtectedLayout({ children }) {
       const now = Date.now();
       const timeLeft = session.expiresAt - now;
 
-      // هشدار ۳۰ ثانیه قبل از اکسپایر (فقط یک بار)
       if (timeLeft <= 30_000 && timeLeft > 0 && !warnedRef.current) {
         warnedRef.current = true;
         toast.warning("Session is about to expire", {
@@ -36,7 +33,6 @@ export default function ProtectedLayout({ children }) {
         });
       }
 
-      // اکسپایر شد → خروج + ریدایرکت
       if (timeLeft <= 0) {
         clearInterval(intervalRef.current);
 
@@ -49,38 +45,25 @@ export default function ProtectedLayout({ children }) {
       }
     };
 
-    // اولین اجرا
     checkExpiration();
-
-    // هر ۱ ثانیه چک شود
     intervalRef.current = setInterval(checkExpiration, 1000);
 
     return () => clearInterval(intervalRef.current);
   }, [session, pathname]);
 
-  // هنگام لود شدن سشن
   if (status === "loading") {
-    return (
-      <>
-        <ToastContainer />
-        <div style={{ padding: 24 }}>Checking session...</div>
-      </>
-    );
+    return <div style={{ padding: 24 }}>Checking session...</div>;
   }
 
   return (
-    <>
-      <ToastContainer />
-
-      <div className={styles.main}>
-        <div className={styles.appWrapper}>
-          <Sidebar />
-          <div className={styles.contentArea}>
-            <Header />
-            <MainContent>{children}</MainContent>
-          </div>
+    <div className={styles.main}>
+      <div className={styles.appWrapper}>
+        <Sidebar />
+        <div className={styles.contentArea}>
+          <Header />
+          <MainContent>{children}</MainContent>
         </div>
       </div>
-    </>
+    </div>
   );
 }
