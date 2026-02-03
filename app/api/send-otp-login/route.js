@@ -12,10 +12,10 @@ const {
   SMTP_USER,
   SMTP_PASS,
   EMAIL_FROM,
-  NEXT_PUBLIC_OTP_TTL_SECONDS = "300",
+  NEXT_PUBLIC_OTP_TTL_LOGIN_SECONDS = "300",
 } = process.env;
 
-const OTP_TTL = Number(NEXT_PUBLIC_OTP_TTL_SECONDS || "300");
+const OTP_TTL = Number(NEXT_PUBLIC_OTP_TTL_LOGIN_SECONDS || "300");
 
 // ساده‌ترین rate limiter در حافظه (برای production از Redis استفاده کن)
 const rateMap = global.__otpRateMap || new Map();

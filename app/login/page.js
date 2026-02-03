@@ -14,26 +14,23 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+import HourglassBottomIcon from '@mui/icons-material/HourglassBottom';
 import { useTheme } from "@/context/ThemeContext";
 
 const SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
-const OTP_TTL = Number(process.env.NEXT_PUBLIC_OTP_TTL_SECONDS || 300);
+const OTP_TTL = Number(process.env.NEXT_PUBLIC_OTP_TTL_LOGIN_SECONDS || 300);
 
-function maskEmail(email = "") {
-  if (!email.includes("@")) return email;
+const maskEmail = (email) => {
+  if (!email || !email.includes("@")) return email;
+
   const [name, domain] = email.split("@");
-  if (!domain) return email;
-  const n = name.length;
-  const maskedName =
-    n <= 2
-      ? name[0] + "*"
-      : name[0] + "*".repeat(Math.max(1, n - 2)) + name.slice(-1);
-  const [dom, tld] = domain.split(".");
-  const maskedDom = dom
-    ? dom[0] + "*" + (dom.length > 1 ? dom.slice(-1) : "")
-    : domain;
-  return `${maskedName}@${maskedDom}.${tld ?? ""}`;
-}
+
+  if (name.length <= 2) {
+    return `${name[0]}*@${domain}`;
+  }
+
+  return `${name.slice(0, 2)}***@${domain}`;
+};
 
 function isEmail(input) {
   const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -674,13 +671,13 @@ export default function LoginPage() {
             <div className={styles.timerContainer}>
               {timeLeft > 0 ? (
                 <p className={styles.timer}>
-                  <span className={styles.timerIcon}>⏳</span>
+                  <span className={styles.timerIcon}><HourglassBottomIcon /></span>
                   Code valid for {Math.floor(timeLeft / 60)}:
                   {String(timeLeft % 60).padStart(2, "0")}
                 </p>
               ) : (
                 <p className={styles.timerExpired}>
-                  <span className={styles.expiredIcon}>⌛</span>
+                  <span className={styles.expiredIcon}><HourglassBottomIcon /></span>
                   Code expired
                 </p>
               )}

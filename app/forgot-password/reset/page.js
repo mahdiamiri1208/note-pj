@@ -159,21 +159,29 @@ export default function ResetPasswordPage() {
           </button>
         </div>
 
-        <button
-          type="button"
-          className={`${styles.primaryBtn} ${loading ? styles.loading : ""}`}
-          onClick={submit}
-          disabled={loading}
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            submit();
+          }}
         >
-          {loading ? (
-            <>
-              <span className={styles.spinner}></span>
-              Resetting...
-            </>
-          ) : (
-            "Reset Password"
-          )}
-        </button>
+          {/* password inputs */}
+
+          <button
+            type="submit"
+            className={`${styles.primaryBtn} ${loading ? styles.loading : ""}`}
+            disabled={loading}
+          >
+            {loading ? (
+              <>
+                <span className={styles.spinner}></span>
+                Resetting...
+              </>
+            ) : (
+              "Reset Password"
+            )}
+          </button>
+        </form>
       </div>
     </div>
   );

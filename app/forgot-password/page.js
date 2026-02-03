@@ -1,4 +1,3 @@
-// app/forgot-password/page.js
 "use client";
 
 import React, { useState } from "react";
@@ -16,7 +15,9 @@ export default function ForgotPasswordPage() {
   const [loading, setLoading] = useState(false);
   const { theme, toggleTheme } = useTheme();
 
-  const sendOtp = async () => {
+  const sendOtp = async (e) => {
+    e.preventDefault(); // 🔑 مهم
+
     if (!email || !email.includes("@")) {
       toast.error("Please enter a valid email");
       return;
@@ -31,15 +32,10 @@ export default function ForgotPasswordPage() {
         body: JSON.stringify({ email }),
       });
 
-      const data = await res.json();
+      const text = await res.text();
+      const data = JSON.parse(text);
 
-      // 🔥 business errors
       if (!res.ok) {
-        if (res.status === 404) {
-          toast.error("No account found with this email");
-          return;
-        }
-
         toast.error(data?.message || "Failed to send OTP");
         return;
       }
@@ -47,7 +43,6 @@ export default function ForgotPasswordPage() {
       toast.success("OTP sent to your email");
       router.push(`/forgot-password/verify?email=${encodeURIComponent(email)}`);
     } catch (err) {
-      console.error(err);
       toast.error("Network or server error");
     } finally {
       setLoading(false);
@@ -64,38 +59,37 @@ export default function ForgotPasswordPage() {
               Enter your email and we'll send a verification code
             </p>
           </div>
-          <ThemeToggleButton
-            start="top-right"
-            onClick={toggleTheme}
-            className={styles.iconDarkMode}
-          >
+
+          <ThemeToggleButton onClick={toggleTheme} className={styles.iconDarkMode}>
             {theme === "light" ? <DarkModeIcon /> : <LightModeIcon />}
           </ThemeToggleButton>
         </div>
 
-        <input
-          className={styles.input}
-          type="email"
-          placeholder="you@example.com"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
+        {/* ✅ فرم */}
+        <form onSubmit={sendOtp}>
+          <input
+            className={styles.input}
+            type="email"
+            placeholder="you@example.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
 
-        <button
-          type="button"
-          className={`${styles.primaryBtn} ${loading ? styles.loading : ""}`}
-          onClick={sendOtp}
-          disabled={loading}
-        >
-          {loading ? (
-            <>
-              <span className={styles.spinner}></span>
-              Sending...
-            </>
-          ) : (
-            "Send Code"
-          )}
-        </button>
+          <button
+            type="submit"
+            className={`${styles.primaryBtn} ${loading ? styles.loading : ""}`}
+            disabled={loading}
+          >
+            {loading ? (
+              <>
+                <span className={styles.spinner}></span>
+                Sending...
+              </>
+            ) : (
+              "Send Code"
+            )}
+          </button>
+        </form>
       </div>
     </div>
   );

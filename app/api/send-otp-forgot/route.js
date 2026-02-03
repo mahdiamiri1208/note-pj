@@ -13,10 +13,10 @@ const {
   SMTP_USER,
   SMTP_PASS,
   EMAIL_FROM,
-  NEXT_PUBLIC_OTP_TTL_SECONDS = "300",
+  NEXT_PUBLIC_OTP_TTL_FORGET_SECONDS = "300",
 } = process.env;
 
-const OTP_TTL = Number(NEXT_PUBLIC_OTP_TTL_SECONDS || "300");
+const OTP_TTL = Number(NEXT_PUBLIC_OTP_TTL_FORGET_SECONDS|| "300");
 
 // rate limit ساده (در حافظه)
 const rateMap = global.__forgotOtpRate || new Map();

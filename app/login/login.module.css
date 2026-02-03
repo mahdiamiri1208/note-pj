@@ -295,17 +295,15 @@
 /* ---------------- Timer ---------------- */
 .timerContainer {
   text-align: center;
-  margin: 15px 0;
 }
 
 .timer {
-  color: var(--success-color);
+  color: var(--text);
   font-size: 0.9rem;
   font-weight: 500;
   display: flex;
-  align-items: center;
+  align-items: end;
   justify-content: center;
-  gap: 8px;
 }
 
 .timerIcon {
@@ -313,13 +311,12 @@
 }
 
 .timerExpired {
-  color: var(--error-color);
+  color: var(--text);
   font-size: 0.9rem;
   font-weight: 500;
   display: flex;
-  align-items: center;
+  align-items: end;
   justify-content: center;
-  gap: 8px;
 }
 
 .expiredIcon {

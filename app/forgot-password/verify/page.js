@@ -112,41 +112,37 @@ export default function VerifyOtpPage() {
           </ThemeToggleButton>
         </div>
 
-        <input
-          className={styles.input}
-          type="text"
-          inputMode="numeric"
-          maxLength={6}
-          placeholder="Enter verification code"
-          value={code}
-          onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
-        />
-
-        {/* -------- Primary Button -------- */}
-        <button
-          type="button"
-          className={`${styles.primaryBtn} ${
-            loading ? styles.loading : ""
-          }`}
-          onClick={verify}
-          disabled={loading || code.length !== 6}
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            verify();
+          }}
         >
-          {loading ? (
-            <>
-              <span className={styles.spinner}></span>
-              Verifying...
-            </>
-          ) : (
-            "Verify Code"
-          )}
-        </button>
+          <input
+            className={styles.input}
+            type="text"
+            inputMode="numeric"
+            maxLength={6}
+            placeholder="Enter verification code"
+            value={code}
+            onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
+          />
 
-        <button
-          className={styles.linkBtn}
-          onClick={() => router.push("/forgot-password")}
-        >
-          Change email
-        </button>
+          <button
+            type="submit"
+            className={`${styles.primaryBtn} ${loading ? styles.loading : ""}`}
+            disabled={loading || code.length !== 6}
+          >
+            {loading ? (
+              <>
+                <span className={styles.spinner}></span>
+                Verifying...
+              </>
+            ) : (
+              "Verify Code"
+            )}
+          </button>
+        </form>
       </div>
     </div>
   );
