@@ -13,7 +13,7 @@ import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
 import LightModeIcon from "@mui/icons-material/LightMode";
 import { ThemeToggleButton } from "../components/theme-toggle-button";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useTheme } from "@/context/ThemeContext";
 import Recaptcha from "../components/recaptcha/Recaptcha";
@@ -121,7 +121,7 @@ export default function RegisterPage() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const res = await fetch("/api/session");
+        const res = await fetch("/api/auth/session");
         const session = await res.json();
         if (session?.user) {
           toast.info("You're already logged in! Redirecting to dashboard...");
@@ -293,7 +293,6 @@ export default function RegisterPage() {
 
   return (
     <div className={styles.wrapper}>
-      <ToastContainer position="top-right" />
       <div className={styles.card}>
         <div className={styles.header}>
           <div className={styles.texts}>

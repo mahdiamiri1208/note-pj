@@ -29,7 +29,8 @@
     "sweetalert2": "^11.26.17"
   },
   "devDependencies": {
-    "eslint": "^9",
-    "eslint-config-next": "16.0.10"
+    "eslint": "^9.39.2",
+    "eslint-config-next": "16.0.10",
+    "eslint-plugin-unused-imports": "^4.3.0"
   }
 }
