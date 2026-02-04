@@ -29,7 +29,7 @@ export default function ProtectedLayout({ children }) {
         warnedRef.current = true;
         toast.warning("Session is about to expire", {
           position: "top-right",
-          autoClose: 5000,
+          autoClose: 15000,
         });
       }
 

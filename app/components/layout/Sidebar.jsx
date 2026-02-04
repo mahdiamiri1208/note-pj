@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import styles from "./Sidebar.module.css";
-import useAuth from "../../auth/useAuth";
 import NotesIcon from "@mui/icons-material/Notes";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import ScheduleIcon from "@mui/icons-material/Schedule";
@@ -15,45 +14,45 @@ import { useTheme } from "@/context/ThemeContext";
 import { useEffect, useState } from "react";
 
 export default function Sidebar() {
-  const { user, isAuthenticated } = useAuth();
-
   const { theme } = useTheme();
+  const isDark = theme === "dark";
 
-  const isDark = theme === "dark";  const [mounted, setMounted] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const [userName, setUserName] = useState("Guest");
 
   useEffect(() => {
     setMounted(true);
+
+    fetch("/api/auth/session")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.user?.name) {
+          setUserName(data.user.name);
+        }
+      })
+      .catch(() => {});
   }, []);
 
   if (!mounted) return null;
 
-
   return (
     <aside
-      className={`${styles.sidebar} ${!isAuthenticated ? styles.disabled : ""}`}
+      className={`${styles.sidebar}`}
       aria-label="Main sidebar"
     >
-      {/* بالای سایدبار: عکس و نام و ایمیل */}
+      {/* بالای سایدبار */}
       <div className={styles.userBox}>
         <Image
-          src={
-            user?.avatar
-              ? user.avatar
-              : isDark
-              ? "/dark-logo.png"
-              : "/light-logo.png"
-          }
-          alt={user?.name || "logo"}
+          src={isDark ? "/dark-logo.png" : "/light-logo.png"}
+          alt="logo"
           width={95}
           height={70}
           priority
         />
         <div className={styles.userInfo}>
-          <div className={styles.userName}>{user?.name || "مهمان"}</div>
+          <div className={styles.userName}>{userName}</div>
         </div>
       </div>
-
-      {/* تیتر اصلی */}
 
       {/* منوی اصلی */}
       <nav className={styles.nav}>
@@ -63,8 +62,8 @@ export default function Sidebar() {
         >
           Main
         </div>
+
         <ul>
-          {/* ✅ All Notes فعال */}
           <li>
             <Link
               href="/notes"
@@ -74,7 +73,6 @@ export default function Sidebar() {
             </Link>
           </li>
 
-          {/* بخش در دست ساخت - کاملاً غیرفعال */}
           <div
             className="px-1 mb-1 text-sm"
             style={{ color: "#878787", fontSize: "14px" }}
@@ -85,39 +83,30 @@ export default function Sidebar() {
           <li>
             <span
               className={`${styles.link} ${styles.btnStyle507} ${styles.fullyDisabled}`}
-              aria-disabled="true"
-              role="button"
-              tabIndex={-1}
             >
               <TopicIcon className={styles.iconTopic} /> Topics
             </span>
           </li>
+
           <li>
             <span
               className={`${styles.link} ${styles.btnStyle507} ${styles.fullyDisabled}`}
-              aria-disabled="true"
-              role="button"
-              tabIndex={-1}
             >
               <FavoriteIcon className={styles.iconFavorite} /> Favorites
             </span>
           </li>
+
           <li>
             <span
               className={`${styles.link} ${styles.btnStyle507} ${styles.fullyDisabled}`}
-              aria-disabled="true"
-              role="button"
-              tabIndex={-1}
             >
               <ScheduleIcon className={styles.iconRecent} /> Recent Notes
             </span>
           </li>
+
           <li>
             <span
               className={`${styles.link} ${styles.btnStyle507} ${styles.fullyDisabled}`}
-              aria-disabled="true"
-              role="button"
-              tabIndex={-1}
             >
               <LocalOfferIcon className={styles.iconTags} /> Tags
             </span>
@@ -125,7 +114,7 @@ export default function Sidebar() {
         </ul>
       </nav>
 
-      {/* بخش اضافی */}
+      {/* بخش پایینی */}
       <div className={styles.extra}>
         <Link href="/notes/new" className={styles.cta}>
           <AddIcon /> Create Note
