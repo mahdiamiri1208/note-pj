@@ -19,7 +19,8 @@ import { useTheme } from "@/context/ThemeContext";
 import Recaptcha from "../components/recaptcha/Recaptcha";
 
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-const USERNAME_REGEX = /^[a-zA-Z0-9._-]{3,}$/;
+// Require at least one English letter, allowed chars a-zA-Z0-9._- and length 3-30
+const USERNAME_REGEX = /^(?=.{3,30}$)(?=.*[a-zA-Z])[a-zA-Z0-9._-]+$/;
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -159,7 +160,9 @@ export default function RegisterPage() {
     if (!form.username.trim()) {
       errors.push("Username is required");
     } else if (!USERNAME_REGEX.test(form.username.trim())) {
-      errors.push("Username must be at least 3 characters and can only contain letters, numbers, dots, hyphens, and underscores");
+      errors.push(
+        "Username must be 3–30 chars, include at least one English letter, and may contain letters, numbers, dots, hyphens and underscores"
+      );
     }
 
     // Email validation

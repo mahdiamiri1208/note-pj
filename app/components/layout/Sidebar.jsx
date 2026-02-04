@@ -11,7 +11,7 @@ import AddIcon from "@mui/icons-material/Add";
 import SettingsIcon from "@mui/icons-material/Settings";
 import Image from "next/image";
 import { useTheme } from "@/context/ThemeContext";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function Sidebar() {
   const { theme } = useTheme();
@@ -20,26 +20,125 @@ export default function Sidebar() {
   const [mounted, setMounted] = useState(false);
   const [userName, setUserName] = useState("Guest");
 
+  // refs برای نگهداری مقادیر بین رندرها
+  const lastNameRef = useRef(null);
+  const bcRef = useRef(null);
+  const abortRef = useRef(null);
+  const pollTimerRef = useRef(null);
+
   useEffect(() => {
     setMounted(true);
 
-    fetch("/api/auth/session")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data?.user?.name) {
-          setUserName(data.user.name);
+    let mountedLocal = true;
+
+    // helper: fetch profile from API
+    const fetchProfile = async () => {
+      try {
+        // abort قبلی
+        if (abortRef.current) {
+          try { abortRef.current.abort(); } catch {}
         }
-      })
-      .catch(() => {});
+        const controller = new AbortController();
+        abortRef.current = controller;
+
+        const res = await fetch("/api/settings/profile", {
+          method: "GET",
+          cache: "no-store",
+          signal: controller.signal,
+        });
+
+        if (!res.ok) {
+          // console.warn("sidebar: profile fetch not ok", res.status);
+          return;
+        }
+
+        const data = await res.json();
+        const name = data?.user?.firstName
+          ? `${data.user.firstName} ${data.user.lastName || ""}`.trim()
+          : data?.user?.name || "Guest";
+
+        // update only on real change
+        if (mountedLocal && name !== lastNameRef.current) {
+          lastNameRef.current = name;
+          setUserName(name || "Guest");
+        }
+      } catch (err) {
+        if (err.name === "AbortError") return;
+      }
+    };
+
+    fetchProfile();
+
+    try {
+      const bc = new BroadcastChannel("profile-updates");
+      bcRef.current = bc;
+      bc.onmessage = (ev) => {
+        try {
+          const payload = ev?.data;
+          if (!payload) return;
+          const name = payload.name || payload.fullName || payload.displayName;
+          if (name && name !== lastNameRef.current) {
+            lastNameRef.current = name;
+            setUserName(name);
+          } else if (payload.refresh) {
+            // اگر پیام refresh خواست، دوباره fetch کن
+            fetchProfile();
+          }
+        } catch (e) {
+          // ignore
+        }
+      };
+    } catch (e) {
+      // BroadcastChannel ممکنه در بعضی محیط‌ها در دسترس نباشه — نادیده بگیر
+    }
+
+    // 3) storage event listener (localStorage) — cross-tab
+    const onStorage = (e) => {
+      try {
+        if (e.key === "profile-updated") {
+          const val = e.newValue;
+          if (!val) return;
+          const obj = JSON.parse(val);
+          const name = obj?.name || obj?.fullName;
+          if (name && name !== lastNameRef.current) {
+            lastNameRef.current = name;
+            setUserName(name);
+          } else if (obj?.refresh) {
+            fetchProfile();
+          }
+        }
+      } catch (err) {
+        // ignore
+      }
+    };
+    window.addEventListener("storage", onStorage);
+
+    const startPolling = () => {
+      pollTimerRef.current = setInterval(() => {
+        fetchProfile();
+      }, 2000);
+    };
+    startPolling();
+
+    return () => {
+      mountedLocal = false;
+      // cleanup
+      if (bcRef.current) {
+        try { bcRef.current.close(); } catch {}
+      }
+      window.removeEventListener("storage", onStorage);
+      if (pollTimerRef.current) clearInterval(pollTimerRef.current);
+      if (abortRef.current) {
+        try { abortRef.current.abort(); } catch {}
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (!mounted) return null;
 
   return (
-    <aside
-      className={`${styles.sidebar}`}
-      aria-label="Main sidebar"
-    >
+    <aside className={`${styles.sidebar}`} aria-label="Main sidebar">
       {/* بالای سایدبار */}
       <div className={styles.userBox}>
         <Image
@@ -120,10 +219,7 @@ export default function Sidebar() {
           <AddIcon /> Create Note
         </Link>
 
-        <Link
-          href="/setting"
-          className={`${styles.link} ${styles.btnStyle507}`}
-        >
+        <Link href="/setting" className={`${styles.link} ${styles.btnStyle507}`}>
           <SettingsIcon className={styles.iconSettings} /> Settings
         </Link>
       </div>
