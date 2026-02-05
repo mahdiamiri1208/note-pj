@@ -27,20 +27,16 @@
 /* کارت گلس مورفیسم (شفاف و واضح) */
 .glassCard {
   position: relative;
-  z-index: 2;              /* ⬅️ خیلی مهم */
-  color: #fff;             /* ⬅️ متن‌ها کامل دیده می‌شن */
+  z-index: 2; /* ⬅️ خیلی مهم */
+  color: #fff; /* ⬅️ متن‌ها کامل دیده می‌شن */
 
   padding: 42px;
   border-radius: 20px;
-  background: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.12),
-    rgba(255, 255, 255, 0.04)
-  );
+  background: linear-gradient(#0000001f, #ffffff0a);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.18);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+  box-shadow: 0px 1px 60px #3e3f5d59;
 }
 
 /* متن‌ها */
@@ -63,8 +59,9 @@
 /* دکمه‌ها */
 .actions {
   display: flex;
-  gap: 14px;
+  gap: 16px;
   justify-content: center;
+  flex-direction: column;
 }
 
 .btn,
@@ -82,7 +79,7 @@
 .btn {
   background: linear-gradient(135deg, #2563eb, #4f46e5);
   color: #fff;
-  padding: 12px 22px;
+  padding: 12px 39px;
   border-radius: 14px;
   font-weight: 600;
   text-decoration: none;
@@ -99,7 +96,7 @@
 .btnOutline {
   background: rgba(255, 255, 255, 0.06);
   color: #fff;
-  padding: 12px 22px;
+  padding: 12px 30px;
   border-radius: 14px;
   font-weight: 600;
   text-decoration: none;
