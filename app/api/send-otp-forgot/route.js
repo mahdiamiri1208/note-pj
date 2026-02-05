@@ -16,9 +16,9 @@ const {
   NEXT_PUBLIC_OTP_TTL_FORGET_SECONDS = "300",
 } = process.env;
 
-const OTP_TTL = Number(NEXT_PUBLIC_OTP_TTL_FORGET_SECONDS|| "300");
+const OTP_TTL = Number(NEXT_PUBLIC_OTP_TTL_FORGET_SECONDS || "300");
 
-// rate limit ساده (در حافظه)
+// rate limit ساده
 const rateMap = global.__forgotOtpRate || new Map();
 global.__forgotOtpRate = rateMap;
 
@@ -57,32 +57,22 @@ export async function POST(req) {
     const { email } = await req.json();
 
     if (!email) {
-      return NextResponse.json(
-        { message: "Email is required" },
-        { status: 400 }
-      );
+      return NextResponse.json({ message: "Email is required" }, { status: 400 });
     }
 
     await connectDB();
 
-    // ✅ تفاوت اصلی: باید کاربر وجود داشته باشد
-    const user = await User.findOne({ email });
+    // 🔑 بررسی ایمیل در دیتابیس
+    const user = await User.findOne({ email: email.trim().toLowerCase() });
     if (!user) {
-      return NextResponse.json(
-        { message: "User not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ message: "User not found" }, { status: 404 });
     }
 
     // rate limit: حداقل 60 ثانیه
     const now = Date.now();
     const bucket = rateMap.get(email) || { last: 0 };
-
     if (now - bucket.last < 60 * 1000) {
-      return NextResponse.json(
-        { message: "Please wait before requesting again" },
-        { status: 429 }
-      );
+      return NextResponse.json({ message: "Please wait before requesting again" }, { status: 429 });
     }
 
     // تولید OTP
@@ -90,15 +80,17 @@ export async function POST(req) {
     const hashed = await bcrypt.hash(codePlain, 10);
     const expiresAt = new Date(Date.now() + OTP_TTL * 1000);
 
-    // پاکسازی قبلی
+    // پاکسازی OTPهای قدیمی
     await Otp.deleteMany({ email, expiresAt: { $lt: new Date() } });
 
+    // ذخیره OTP جدید
     await Otp.findOneAndUpdate(
       { email },
       { code: hashed, expiresAt },
       { upsert: true, new: true }
     );
 
+    // ارسال ایمیل فقط برای کاربران موجود
     await sendEmail(email, codePlain);
 
     bucket.last = now;
@@ -107,9 +99,6 @@ export async function POST(req) {
     return NextResponse.json({ ok: true });
   } catch (err) {
     console.error("forgot otp error:", err);
-    return NextResponse.json(
-      { message: "Server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ message: "Server error" }, { status: 500 });
   }
 }
