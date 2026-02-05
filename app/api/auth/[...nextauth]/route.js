@@ -10,6 +10,18 @@ import bcrypt from "bcryptjs";
 
 const TEN_MINUTES = 10 * 60; // seconds
 
+async function ensureUniqueUsername(base) {
+  base = (base || "user").toLowerCase().replace(/[^a-z0-9._-]/g, "").slice(0, 24);
+  let attempt = base || "user";
+  let i = 0;
+  while (await User.findOne({ username: attempt })) {
+    i++;
+    attempt = `${base}${Math.floor(Math.random() * 9000) + 100}`;
+    if (i > 20) break;
+  }
+  return attempt;
+}
+
 export const authOptions = {
   providers: [
     GoogleProvider({
@@ -51,6 +63,7 @@ export const authOptions = {
             email: user.email,
             username: user.username,
             name: `${user.firstName} ${user.lastName}`.trim(),
+            provider: user.provider || "local",
           };
         } catch (err) {
           console.error("Password authorize error:", err);
@@ -96,6 +109,7 @@ export const authOptions = {
             email: user.email,
             username: user.username,
             name: `${user.firstName} ${user.lastName}`.trim(),
+            provider: user.provider || "local",
           };
         } catch (err) {
           console.error("OTP authorize error:", err);
@@ -107,11 +121,10 @@ export const authOptions = {
 
   secret: process.env.NEXTAUTH_SECRET,
 
-  // ===== Session + JWT configuration =====
   session: {
     strategy: "jwt",
-    maxAge: TEN_MINUTES, // session valid for 10 minutes
-    updateAge: 0,        // don't auto-refresh session
+    maxAge: TEN_MINUTES,
+    updateAge: 0,
   },
 
   jwt: {
@@ -123,31 +136,101 @@ export const authOptions = {
   },
 
   callbacks: {
-    // jwt callback runs on sign-in and subsequent calls
-    async jwt({ token, user }) {
-      // On initial sign-in, set token claims
-      if (user) {
-        token.id = user.id;
-        token.email = user.email;
-        token.username = user.username;
-        token.name = user.name;
+    // قبل از قبول لاگین از OAuth: اگر ایمیل موجود نبود، رکورد بساز
+    async signIn({ user, account, profile }) {
+      try {
+        // فقط برای providerهای OAuth
+        if (account && (account.provider === "google" || account.provider === "github")) {
+          await connectDB();
 
-        // set explicit exp (seconds since epoch)
-        token.exp = Math.floor(Date.now() / 1000) + TEN_MINUTES;
+          const email = (user?.email || profile?.email || "").toLowerCase();
+          if (!email) return false;
+
+          let existing = await User.findOne({ email });
+          if (!existing) {
+            // نام و نام‌خانوادگی را استخراج کن
+            const firstName = profile.given_name || (profile.name ? profile.name.split(" ")[0] : "") || "";
+            const lastName = profile.family_name || (profile.name ? profile.name.split(" ").slice(1).join(" ") : "") || "";
+
+            // ساخت username یکتا
+            const preferred = (profile.preferred_username || (firstName + lastName) || email.split("@")[0]);
+            const username = await ensureUniqueUsername(preferred);
+
+            const newUser = await User.create({
+              firstName: firstName || "User",
+              lastName: lastName || "",
+              username,
+              email,
+              provider: account.provider,
+              providerId: profile.sub || profile.id || null,
+              hasPassword: false,
+              // password را نریزیم (undef) چون این کاربر با oauth ثبت شده
+            });
+
+            // nothing to return specifically — allow sign-in
+          } else {
+            // اگر کاربر هست اما providerId ثبت نشده، بروز کن
+            let changed = false;
+            if (!existing.providerId) {
+              existing.provider = account.provider;
+              existing.providerId = profile.sub || profile.id || existing.providerId;
+              changed = true;
+            }
+            if (!existing.hasPassword && existing.password) {
+              existing.hasPassword = true;
+              changed = true;
+            }
+            if (changed) await existing.save();
+          }
+        }
+
+        return true;
+      } catch (err) {
+        console.error("signIn callback error:", err);
+        return false;
       }
-      // otherwise, preserve existing token.exp (do not refresh here)
+    },
+
+    // کنترل توکن JWT — وقتی لاگین اتفاق افتاد، مقادیر DB را داخل token بگذار
+    async jwt({ token, user, account, profile }) {
+      // وقتی اولین بار (حین sign in) account موجود است — بهتر ایمیل را از DB بخوانیم و id و username بگذاریم
+      try {
+        if (account) {
+          await connectDB();
+          const email = (user?.email || token?.email || profile?.email || "").toLowerCase();
+          if (email) {
+            const dbUser = await User.findOne({ email }).select("firstName lastName username _id provider");
+            if (dbUser) {
+              token.id = dbUser._id.toString();
+              token.email = email;
+              token.username = dbUser.username;
+              token.name = `${dbUser.firstName} ${dbUser.lastName}`.trim();
+              token.provider = dbUser.provider || account.provider;
+              token.exp = Math.floor(Date.now() / 1000) + TEN_MINUTES;
+            }
+          }
+        } else if (user) {
+          // credentials flow returns user object
+          token.id = user.id;
+          token.email = user.email;
+          token.username = user.username;
+          token.name = user.name;
+          token.exp = Math.floor(Date.now() / 1000) + TEN_MINUTES;
+        }
+      } catch (err) {
+        console.error("jwt callback error:", err);
+      }
       return token;
     },
 
-    // session callback exposes safe fields to client
     async session({ session, token }) {
       if (!session.user) session.user = {};
       session.user.id = token.id;
       session.user.email = token.email;
       session.user.username = token.username;
       session.user.name = token.name;
+      session.user.provider = token.provider || "local";
 
-      // expose expiresAt as ms (client-friendly)
       if (token?.exp) {
         session.expiresAt = Number(token.exp) * 1000;
         session.expires = new Date(Number(token.exp) * 1000).toISOString();
